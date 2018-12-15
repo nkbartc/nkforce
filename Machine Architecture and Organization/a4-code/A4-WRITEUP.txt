@@ -1,0 +1,224 @@
+____________
+
+ A4 WRITEUP
+____________
+
+
+- Name: Ju-Yu, Chou Fu
+- NetID: chouf001
+
+Answer the questions below according to the lab specification. Write
+your answers directly in this text file and submit it to complete the
+lab.
+
+
+PROBLEM 1: optimized_matrix_trans_mult_vec()
+============================================
+
+Do your timing study on apollo.cselabs.umn.edu
+
+
+(A) Paste Source Code
+~~~~~~~~~~~~~~~~~~~~~
+
+Paste a copy of your source code for the function
+optimized_matrix_trans_mult_vec() below.
+
+int optimized_matrix_trans_mult_vec(matrix_t mat, vector_t vec, vector_t res){
+  //set everything to 0
+  for (int x = 0; x < mat.cols; x++) {
+    VSET(res, x, 0);
+  }
+
+  int limit = mat.cols - (mat.cols % 4);
+
+  for(int i=0; i<mat.rows; i++){
+    int j = 0;
+    for(; j<limit; j+=4){ // unroll x4 for pipelining
+      int prod0 = MGET(mat, i, j) * VGET(vec, i);
+      int curr0 = VGET(res, j);
+      int next0 = curr0 + prod0;
+      VSET(res, j, next0);
+
+      int prod1 = MGET(mat, i, j+1) * VGET(vec, i);
+      int curr1 = VGET(res, j+1);
+      int next1 = curr1 + prod1;
+      VSET(res, j+1, next1);
+
+      int prod2 = MGET(mat, i, j+2) * VGET(vec, i);
+      int curr2 = VGET(res, j+2);
+      int next2 = curr2 + prod2;
+      VSET(res, j+2, next2);
+
+      int prod3 = MGET(mat, i, j+3) * VGET(vec, i);
+      int curr3 = VGET(res, j+3);
+      int next3 = curr3 + prod3;
+      VSET(res, j+3, next3);
+    }
+    // cleanup loop taking care of any remainders.
+    //
+    for(; j<mat.cols; j++){
+      int prod0 = MGET(mat, i, j) * VGET(vec, i);
+      int curr0 = VGET(res, j);
+      int next0 = curr0 + prod0;
+      VSET(res, j, next0);
+    }
+  }
+  return 0;
+}
+
+(B) Timing on Apollo
+~~~~~~~~~~~~~~~~~~~~
+
+Paste a copy of the results of running `mult_bench' on
+apollo.cselabs.umn.edu in the space below which shows how your
+performance optimizations improved on the baseline codes.
+
+chouf001@csel-apollo:/home/chouf001/csci2021/a4-code $ ./mult_benchmark
+SIZE       BASE       NORM        OPT BSPDUP NSPDUP POINTS
+512 1.2040e-03 1.1050e-03 5.7400e-04   2.10   1.93      1
+1024 1.7891e-02 4.2410e-03 2.3450e-03   7.63   1.81      4
+2048 2.4474e-01 1.7274e-02 9.9180e-03  24.68   1.74     12
+4096 1.0191e+00 6.8409e-02 3.9828e-02  25.59   1.72     13
+8192 4.1327e+00 2.7401e-01 1.6342e-01  25.29   1.68     12
+RAW POINTS: 42
+TOTAL POINTS: 35 / 35
+
+(C) Optimizations
+~~~~~~~~~~~~~~~~~
+
+Describe in some detail the optimizations you used to speed the code
+up.  THE CODE SHOULD CONTAIN SOME COMMENTS already to describe these
+but in the section below, describe in English the techniques you used
+to make the code run faster.  Format your descriptions into discrete
+chunks such as.
+
+Optimization 1:
+I make an outer for-loop over rows and then an inner for-loop over columns. This
+allows my function to have more cache hits, which makes the function become
+faster.
+
+Optimization 2:
+I notice that the sizes are multiples of 2. So I create 4 local variables and
+use unrolling to compute 4 columns at the same time, which takes advantage of
+pipelining. I also write a cleanup for-loop to handle any remainders at the end.
+
+
+PROBLEM 2: Timing Rows vs Columns
+=================================
+
+Do your timing study on apollo.cselabs.umn.edu
+
+
+(A) Min Size for Algorithmic Differences
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Determine size of input array does one start to see a measurable
+difference in the performance of the linear and logarithmic
+algorithms.  Produce a timing table which includes all algorithms
+which clearly demonstrates an uptick in the times associated with some
+while others remain much lower.  Identify what size this appears to be
+a occur.
+
+chouf001@csel-apollo:/home/chouf001/csci2021/a4-code $
+./search_benchmark 3 13 1
+
+LENGTH SEARCHES      array       list     binary       tree
+       8       16 1.0000e-05 1.0000e-05 9.0000e-06 1.0000e-05
+      16       32 2.1000e-05 2.1000e-05 2.3000e-05 1.9000e-05
+      32       64 4.4000e-05 4.6000e-05 3.9000e-05 4.2000e-05
+      64      128 9.2000e-05 9.5000e-05 8.6000e-05 8.6000e-05
+     128      256 1.9400e-04 2.2300e-04 1.9400e-04 1.8100e-04
+     256      512 4.6700e-04 5.8300e-04 3.3800e-04 3.6000e-04
+     512     1024 1.2200e-03 1.7670e-03 6.8600e-04 7.2600e-04
+    1024     2048 3.5060e-03 8.4800e-03 1.4390e-03 1.5810e-03
+    2048     4096 1.1532e-02 5.7012e-02 2.8900e-03 3.3360e-03
+    4096     8192 4.0155e-02 2.7927e-01 5.8900e-03 6.5500e-03
+    8192    16384 1.5134e-01 1.1986e+00 1.1787e-02 1.3685e-02
+
+When the length is 512, we can see that the linear algorithms become slower
+then the logarithmic algorithms.
+
+(B) List vs Array
+~~~~~~~~~~~~~~~~~
+
+Determine whether the linear array and linked list search remain
+approximately at the same performance level as size increases to large
+data or whether one begins to become favorable over other. Determine
+the approximate size at which this divergence becomes obvious. Discuss
+reasons WHY this difference arises.
+
+chouf001@csel-apollo:/home/chouf001/csci2021/a4-code $
+./search_benchmark 1 11 1 al
+
+LENGTH SEARCHES      array       list
+       2        4 4.0000e-06 3.0000e-06
+       4        8 4.0000e-06 5.0000e-06
+       8       16 1.2000e-05 1.1000e-05
+      16       32 2.3000e-05 2.0000e-05
+      32       64 4.1000e-05 4.5000e-05
+      64      128 9.4000e-05 1.0000e-04
+     128      256 2.0700e-04 2.3000e-04
+     256      512 4.7600e-04 5.8400e-04
+     512     1024 1.2090e-03 1.7720e-03
+    1024     2048 3.4980e-03 8.1180e-03
+    2048     4096 1.1344e-02 5.6595e-02
+
+When the length is 64, the linked list search becomes slower than linear
+array search.
+
+The difference between these two functions is not obvious when the number
+of search is not large, but we can see that linked list search becomes much
+less efficient as the number of search grows.
+
+The reason why 2nd algorithms is less efficient than 1st is because the
+linked list search needs to dereference more than the linear_array_search
+does. Furthermore, the memory structure of the linked list is not sequential,
+which means that the linked list search needs extra time to locate the different
+addresses that are spread in memory space.
+
+(C) Tree vs Array
+~~~~~~~~~~~~~~~~~
+
+Compare the binary array search and binary tree search on small to
+very large arrays. Determine if there is a size at which the
+performance of these two begins to diverge. If so, describe why this
+might be happening based on your understanding of the data structures
+and the memory system.
+
+chouf001@csel-apollo:/home/chouf001/csci2021/a4-code $
+./search_benchmark 1 14 1 bt
+
+LENGTH SEARCHES     binary       tree
+       2        4 4.0000e-06 2.0000e-06
+       4        8 6.0000e-06 5.0000e-06
+       8       16 1.0000e-05 1.1000e-05
+      16       32 2.2000e-05 1.9000e-05
+      32       64 4.3000e-05 4.1000e-05
+      64      128 8.5000e-05 8.5000e-05
+     128      256 1.6800e-04 1.7800e-04
+     256      512 3.4700e-04 3.4500e-04
+     512     1024 7.1400e-04 7.2700e-04
+    1024     2048 1.4590e-03 1.6100e-03
+    2048     4096 2.8940e-03 3.3200e-03
+    4096     8192 5.8810e-03 6.5930e-03
+    8192    16384 1.1904e-02 1.3548e-02
+   16384    32768 2.4045e-02 2.8589e-02
+
+After the length of 128, binary_tree_search becomes slower than
+binary_array_search.
+
+Even though the time complexities of these two searching
+algorithms are both O(log n), the memory structure of the array is sequential
+while the bst is not, which causes that the binary_tree_search needs extra
+time to locate the different addresses which are spread in the memory space.
+
+Hence, the result of binary_array_search verse binary_tree_search turns out
+that the first one is faster than the other.
+
+(D) OPTIONAL MAKEUP CREDIT
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you decided to make use of a table of function pointers/structs
+which is worth makeup credit, describe your basic design for this
+below.

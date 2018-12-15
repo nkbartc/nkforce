@@ -1,0 +1,97 @@
+			   __________________
+
+			    LAB 08 QUESTIONS
+			   __________________
+
+
+- Name: (FILL THIS in)
+- NetID: (THE kauf0095 IN kauf0095@umn.edu)
+
+Answer the questions below according to the lab specification. Write
+your answers directly in this text file and submit it to complete the
+lab.
+
+
+PROBLEM 1: Smashing
+===================
+
+  Examine the obviously flawed code in `smash.c'.
+  ,----
+  |  1  #include <stdio.h>
+  |  2  
+  |  3  void fill_seq(int *a);
+  |  4  
+  |  5  int main(){
+  |  6    int arr[4];
+  |  7  
+  |  8    fill_seq(arr);
+  |  9  
+  | 10    for(int i=0; i<4; i++){
+  | 11      printf("[%d]: %d\n",i,arr[i]);
+  | 12    }
+  | 13  
+  | 14    return 0;
+  | 15  }
+  | 16  
+  | 17  #define END 8
+  | 18  void fill_seq(int *a){
+  | 19    for(int i=0; i<END; i++){
+  | 20      a[i] = (i+1)*2;
+  | 21    }
+  | 22  }
+  `----
+  Compiling and running this code with gcc on a Linux system (and
+  perhaps in other compiler/OS configurations) will yield the following
+  kind of behavior.  #+BEGIN_SRC sh > gcc smash.c > ./a.out
+
+
+stack smashing detected ***: <unknown> terminated
+-------------------------------------------------
+
+  Aborted (core dumped) #+END_SRC Describe the kind of error that is
+  occurring in this code why it is referred to as "stack smashing."
+  Identify which part of the code is causing the problem.
+
+
+PROBLEM 2: C to x86-64 Conversion
+=================================
+
+  Convert the C function in the file `col_check.c' to x86-64
+  assembly. Note that the parameter is a packed struct, NOT a pointer to
+  a struct.
+
+  ,----
+  | typedef struct{
+  |   int cur;
+  |   int step;
+  | } colinfo_t;
+  | // |       | Byte |   Byte | Packed |
+  | // | Field | Size | Offset |   Bits |
+  | // |-------+------+--------+--------|
+  | // | cur   |    4 |     +0 |   0-31 |
+  | // | step  |    4 |     +4 |  32-64 |
+  | 
+  | int col_check(colinfo_t info){
+  |   // Analyzes values in the packed struct arg
+  |   // info to detect errors in it. An int
+  |   // comprised of set error bits is
+  |   // returned. Bit 0: cur field was 0 or
+  |   // below, Bit 1: step was negative, Bit 2:
+  |   // cur was 1 but step is negative.
+  | 
+  |   int cur = info.cur;
+  |   int step = info.step;
+  |   int errs = 0;
+  |   if(cur <= 0){
+  |     errs = errs | 0x1; // 0b0001
+  |   }
+  |   if(step < 0){
+  |     errs = errs | 0x2; // 0b0010
+  |   }
+  |   if(cur==1 && step < 0){
+  |     errs = errs | 0x4; // 0b0100
+  |   }
+  | 
+  |   return errs;
+  | }
+  `----

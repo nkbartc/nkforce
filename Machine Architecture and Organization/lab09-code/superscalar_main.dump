@@ -1,0 +1,927 @@
+
+superscalar_main:     file format elf64-x86-64
+
+
+Disassembly of section .init:
+
+0000000000400570 <_init>:
+  400570:	48 83 ec 08          	sub    $0x8,%rsp
+  400574:	48 8b 05 7d 1a 20 00 	mov    0x201a7d(%rip),%rax        # 601ff8 <_DYNAMIC+0x1d0>
+  40057b:	48 85 c0             	test   %rax,%rax
+  40057e:	74 05                	je     400585 <_init+0x15>
+  400580:	e8 8b 00 00 00       	callq  400610 <__printf_chk@plt+0x10>
+  400585:	48 83 c4 08          	add    $0x8,%rsp
+  400589:	c3                   	retq   
+
+Disassembly of section .plt:
+
+0000000000400590 <puts@plt-0x10>:
+  400590:	ff 35 72 1a 20 00    	pushq  0x201a72(%rip)        # 602008 <_GLOBAL_OFFSET_TABLE_+0x8>
+  400596:	ff 25 74 1a 20 00    	jmpq   *0x201a74(%rip)        # 602010 <_GLOBAL_OFFSET_TABLE_+0x10>
+  40059c:	0f 1f 40 00          	nopl   0x0(%rax)
+
+00000000004005a0 <puts@plt>:
+  4005a0:	ff 25 72 1a 20 00    	jmpq   *0x201a72(%rip)        # 602018 <_GLOBAL_OFFSET_TABLE_+0x18>
+  4005a6:	68 00 00 00 00       	pushq  $0x0
+  4005ab:	e9 e0 ff ff ff       	jmpq   400590 <_init+0x20>
+
+00000000004005b0 <__stack_chk_fail@plt>:
+  4005b0:	ff 25 6a 1a 20 00    	jmpq   *0x201a6a(%rip)        # 602020 <_GLOBAL_OFFSET_TABLE_+0x20>
+  4005b6:	68 01 00 00 00       	pushq  $0x1
+  4005bb:	e9 d0 ff ff ff       	jmpq   400590 <_init+0x20>
+
+00000000004005c0 <__libc_start_main@plt>:
+  4005c0:	ff 25 62 1a 20 00    	jmpq   *0x201a62(%rip)        # 602028 <_GLOBAL_OFFSET_TABLE_+0x28>
+  4005c6:	68 02 00 00 00       	pushq  $0x2
+  4005cb:	e9 c0 ff ff ff       	jmpq   400590 <_init+0x20>
+
+00000000004005d0 <strcmp@plt>:
+  4005d0:	ff 25 5a 1a 20 00    	jmpq   *0x201a5a(%rip)        # 602030 <_GLOBAL_OFFSET_TABLE_+0x30>
+  4005d6:	68 03 00 00 00       	pushq  $0x3
+  4005db:	e9 b0 ff ff ff       	jmpq   400590 <_init+0x20>
+
+00000000004005e0 <strtol@plt>:
+  4005e0:	ff 25 52 1a 20 00    	jmpq   *0x201a52(%rip)        # 602038 <_GLOBAL_OFFSET_TABLE_+0x38>
+  4005e6:	68 04 00 00 00       	pushq  $0x4
+  4005eb:	e9 a0 ff ff ff       	jmpq   400590 <_init+0x20>
+
+00000000004005f0 <fflush@plt>:
+  4005f0:	ff 25 4a 1a 20 00    	jmpq   *0x201a4a(%rip)        # 602040 <_GLOBAL_OFFSET_TABLE_+0x40>
+  4005f6:	68 05 00 00 00       	pushq  $0x5
+  4005fb:	e9 90 ff ff ff       	jmpq   400590 <_init+0x20>
+
+0000000000400600 <__printf_chk@plt>:
+  400600:	ff 25 42 1a 20 00    	jmpq   *0x201a42(%rip)        # 602048 <_GLOBAL_OFFSET_TABLE_+0x48>
+  400606:	68 06 00 00 00       	pushq  $0x6
+  40060b:	e9 80 ff ff ff       	jmpq   400590 <_init+0x20>
+
+Disassembly of section .plt.got:
+
+0000000000400610 <.plt.got>:
+  400610:	ff 25 e2 19 20 00    	jmpq   *0x2019e2(%rip)        # 601ff8 <_DYNAMIC+0x1d0>
+  400616:	66 90                	xchg   %ax,%ax
+
+Disassembly of section .text:
+
+0000000000400620 <_start>:
+  400620:	31 ed                	xor    %ebp,%ebp
+  400622:	49 89 d1             	mov    %rdx,%r9
+  400625:	5e                   	pop    %rsi
+  400626:	48 89 e2             	mov    %rsp,%rdx
+  400629:	48 83 e4 f0          	and    $0xfffffffffffffff0,%rsp
+  40062d:	50                   	push   %rax
+  40062e:	54                   	push   %rsp
+  40062f:	49 c7 c0 d0 0b 40 00 	mov    $0x400bd0,%r8
+  400636:	48 c7 c1 60 0b 40 00 	mov    $0x400b60,%rcx
+  40063d:	48 c7 c7 9f 07 40 00 	mov    $0x40079f,%rdi
+  400644:	e8 77 ff ff ff       	callq  4005c0 <__libc_start_main@plt>
+  400649:	f4                   	hlt    
+  40064a:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+
+0000000000400650 <deregister_tm_clones>:
+  400650:	b8 bf 21 60 00       	mov    $0x6021bf,%eax
+  400655:	55                   	push   %rbp
+  400656:	48 2d b8 21 60 00    	sub    $0x6021b8,%rax
+  40065c:	48 83 f8 0e          	cmp    $0xe,%rax
+  400660:	48 89 e5             	mov    %rsp,%rbp
+  400663:	76 1b                	jbe    400680 <deregister_tm_clones+0x30>
+  400665:	b8 00 00 00 00       	mov    $0x0,%eax
+  40066a:	48 85 c0             	test   %rax,%rax
+  40066d:	74 11                	je     400680 <deregister_tm_clones+0x30>
+  40066f:	5d                   	pop    %rbp
+  400670:	bf b8 21 60 00       	mov    $0x6021b8,%edi
+  400675:	ff e0                	jmpq   *%rax
+  400677:	66 0f 1f 84 00 00 00 	nopw   0x0(%rax,%rax,1)
+  40067e:	00 00 
+  400680:	5d                   	pop    %rbp
+  400681:	c3                   	retq   
+  400682:	0f 1f 40 00          	nopl   0x0(%rax)
+  400686:	66 2e 0f 1f 84 00 00 	nopw   %cs:0x0(%rax,%rax,1)
+  40068d:	00 00 00 
+
+0000000000400690 <register_tm_clones>:
+  400690:	be b8 21 60 00       	mov    $0x6021b8,%esi
+  400695:	55                   	push   %rbp
+  400696:	48 81 ee b8 21 60 00 	sub    $0x6021b8,%rsi
+  40069d:	48 c1 fe 03          	sar    $0x3,%rsi
+  4006a1:	48 89 e5             	mov    %rsp,%rbp
+  4006a4:	48 89 f0             	mov    %rsi,%rax
+  4006a7:	48 c1 e8 3f          	shr    $0x3f,%rax
+  4006ab:	48 01 c6             	add    %rax,%rsi
+  4006ae:	48 d1 fe             	sar    %rsi
+  4006b1:	74 15                	je     4006c8 <register_tm_clones+0x38>
+  4006b3:	b8 00 00 00 00       	mov    $0x0,%eax
+  4006b8:	48 85 c0             	test   %rax,%rax
+  4006bb:	74 0b                	je     4006c8 <register_tm_clones+0x38>
+  4006bd:	5d                   	pop    %rbp
+  4006be:	bf b8 21 60 00       	mov    $0x6021b8,%edi
+  4006c3:	ff e0                	jmpq   *%rax
+  4006c5:	0f 1f 00             	nopl   (%rax)
+  4006c8:	5d                   	pop    %rbp
+  4006c9:	c3                   	retq   
+  4006ca:	66 0f 1f 44 00 00    	nopw   0x0(%rax,%rax,1)
+
+00000000004006d0 <__do_global_dtors_aux>:
+  4006d0:	80 3d e9 1a 20 00 00 	cmpb   $0x0,0x201ae9(%rip)        # 6021c0 <completed.7594>
+  4006d7:	75 11                	jne    4006ea <__do_global_dtors_aux+0x1a>
+  4006d9:	55                   	push   %rbp
+  4006da:	48 89 e5             	mov    %rsp,%rbp
+  4006dd:	e8 6e ff ff ff       	callq  400650 <deregister_tm_clones>
+  4006e2:	5d                   	pop    %rbp
+  4006e3:	c6 05 d6 1a 20 00 01 	movb   $0x1,0x201ad6(%rip)        # 6021c0 <completed.7594>
+  4006ea:	f3 c3                	repz retq 
+  4006ec:	0f 1f 40 00          	nopl   0x0(%rax)
+
+00000000004006f0 <frame_dummy>:
+  4006f0:	bf 20 1e 60 00       	mov    $0x601e20,%edi
+  4006f5:	48 83 3f 00          	cmpq   $0x0,(%rdi)
+  4006f9:	75 05                	jne    400700 <frame_dummy+0x10>
+  4006fb:	eb 93                	jmp    400690 <register_tm_clones>
+  4006fd:	0f 1f 00             	nopl   (%rax)
+  400700:	b8 00 00 00 00       	mov    $0x0,%eax
+  400705:	48 85 c0             	test   %rax,%rax
+  400708:	74 f1                	je     4006fb <frame_dummy+0xb>
+  40070a:	55                   	push   %rbp
+  40070b:	48 89 e5             	mov    %rsp,%rbp
+  40070e:	ff d0                	callq  *%rax
+  400710:	5d                   	pop    %rbp
+  400711:	e9 7a ff ff ff       	jmpq   400690 <register_tm_clones>
+
+0000000000400716 <print_usage>:
+  char *description;            // description of alg
+} alg_t;
+
+extern alg_t algs[];
+
+void print_usage(char *prog_name){
+  400716:	53                   	push   %rbx
+  400717:	48 89 fa             	mov    %rdi,%rdx
+}
+
+__fortify_function int
+printf (const char *__restrict __fmt, ...)
+{
+  return __printf_chk (__USE_FORTIFY_LEVEL - 1, __fmt, __va_arg_pack ());
+  40071a:	be e4 0b 40 00       	mov    $0x400be4,%esi
+  40071f:	bf 01 00 00 00       	mov    $0x1,%edi
+  400724:	b8 00 00 00 00       	mov    $0x0,%eax
+  400729:	e8 d2 fe ff ff       	callq  400600 <__printf_chk@plt>
+  40072e:	bf 40 0c 40 00       	mov    $0x400c40,%edi
+  400733:	e8 68 fe ff ff       	callq  4005a0 <puts@plt>
+  400738:	bf 02 0c 40 00       	mov    $0x400c02,%edi
+  40073d:	e8 5e fe ff ff       	callq  4005a0 <puts@plt>
+  printf("usage: %s <ALG> <MULT> <EXP>\n",prog_name);
+  printf("  <MULT> and <ALG> are integers, iterates for MULT * 2^{EXP} iterations\n");
+  printf("  <ALG> is one of\n");
+  for(int i=0; algs[i].alg_func != NULL; i++){
+  400742:	bb 00 00 00 00       	mov    $0x0,%ebx
+  400747:	eb 3b                	jmp    400784 <print_usage+0x6e>
+    printf("%18s : %s\n",algs[i].name,algs[i].description);
+  400749:	48 63 c3             	movslq %ebx,%rax
+  40074c:	48 8d 14 00          	lea    (%rax,%rax,1),%rdx
+  400750:	48 8d 34 02          	lea    (%rdx,%rax,1),%rsi
+  400754:	48 8d 0c f5 00 00 00 	lea    0x0(,%rsi,8),%rcx
+  40075b:	00 
+  40075c:	48 89 ce             	mov    %rcx,%rsi
+  40075f:	48 8b 89 90 20 60 00 	mov    0x602090(%rcx),%rcx
+  400766:	48 8b 96 88 20 60 00 	mov    0x602088(%rsi),%rdx
+  40076d:	be 14 0c 40 00       	mov    $0x400c14,%esi
+  400772:	bf 01 00 00 00       	mov    $0x1,%edi
+  400777:	b8 00 00 00 00       	mov    $0x0,%eax
+  40077c:	e8 7f fe ff ff       	callq  400600 <__printf_chk@plt>
+
+void print_usage(char *prog_name){
+  printf("usage: %s <ALG> <MULT> <EXP>\n",prog_name);
+  printf("  <MULT> and <ALG> are integers, iterates for MULT * 2^{EXP} iterations\n");
+  printf("  <ALG> is one of\n");
+  for(int i=0; algs[i].alg_func != NULL; i++){
+  400781:	83 c3 01             	add    $0x1,%ebx
+  400784:	48 63 c3             	movslq %ebx,%rax
+  400787:	48 8d 14 40          	lea    (%rax,%rax,2),%rdx
+  40078b:	48 8d 04 d5 00 00 00 	lea    0x0(,%rdx,8),%rax
+  400792:	00 
+  400793:	48 83 b8 80 20 60 00 	cmpq   $0x0,0x602080(%rax)
+  40079a:	00 
+  40079b:	75 ac                	jne    400749 <print_usage+0x33>
+    printf("%18s : %s\n",algs[i].name,algs[i].description);
+  }
+}  
+  40079d:	5b                   	pop    %rbx
+  40079e:	c3                   	retq   
+
+000000000040079f <main>:
+
+int main(int argc, char *argv[]){
+  40079f:	41 56                	push   %r14
+  4007a1:	41 55                	push   %r13
+  4007a3:	41 54                	push   %r12
+  4007a5:	55                   	push   %rbp
+  4007a6:	53                   	push   %rbx
+  4007a7:	48 83 ec 20          	sub    $0x20,%rsp
+  4007ab:	49 89 f5             	mov    %rsi,%r13
+  4007ae:	64 48 8b 04 25 28 00 	mov    %fs:0x28,%rax
+  4007b5:	00 00 
+  4007b7:	48 89 44 24 18       	mov    %rax,0x18(%rsp)
+  4007bc:	31 c0                	xor    %eax,%eax
+  if(argc < 4){
+  4007be:	83 ff 03             	cmp    $0x3,%edi
+  4007c1:	7f 12                	jg     4007d5 <main+0x36>
+    print_usage(argv[0]);
+  4007c3:	48 8b 3e             	mov    (%rsi),%rdi
+  4007c6:	e8 4b ff ff ff       	callq  400716 <print_usage>
+    return 1;
+  4007cb:	b8 01 00 00 00       	mov    $0x1,%eax
+  4007d0:	e9 17 01 00 00       	jmpq   4008ec <main+0x14d>
+
+
+  // Function pointer associated with alg
+  void (*alg_func)(unsigned long iters, unsigned long *start, unsigned long *delta);
+
+  char *alg_name = argv[1];
+  4007d5:	48 8b 6e 08          	mov    0x8(%rsi),%rbp
+  alg_func = NULL;
+
+  // select algorithm to use
+  for(int i=0; algs[i].alg_func != NULL; i++){
+  4007d9:	bb 00 00 00 00       	mov    $0x0,%ebx
+
+  // Function pointer associated with alg
+  void (*alg_func)(unsigned long iters, unsigned long *start, unsigned long *delta);
+
+  char *alg_name = argv[1];
+  alg_func = NULL;
+  4007de:	41 bc 00 00 00 00    	mov    $0x0,%r12d
+
+  // select algorithm to use
+  for(int i=0; algs[i].alg_func != NULL; i++){
+  4007e4:	eb 28                	jmp    40080e <main+0x6f>
+    if(strcmp(alg_name, algs[i].name) == 0){
+  4007e6:	48 63 c3             	movslq %ebx,%rax
+  4007e9:	48 8d 14 40          	lea    (%rax,%rax,2),%rdx
+  4007ed:	48 8d 04 d5 00 00 00 	lea    0x0(,%rdx,8),%rax
+  4007f4:	00 
+  4007f5:	48 8b b0 88 20 60 00 	mov    0x602088(%rax),%rsi
+  4007fc:	48 89 ef             	mov    %rbp,%rdi
+  4007ff:	e8 cc fd ff ff       	callq  4005d0 <strcmp@plt>
+  400804:	85 c0                	test   %eax,%eax
+  400806:	75 03                	jne    40080b <main+0x6c>
+      alg_func = algs[i].alg_func;
+  400808:	4d 89 f4             	mov    %r14,%r12
+
+  char *alg_name = argv[1];
+  alg_func = NULL;
+
+  // select algorithm to use
+  for(int i=0; algs[i].alg_func != NULL; i++){
+  40080b:	83 c3 01             	add    $0x1,%ebx
+  40080e:	48 63 c3             	movslq %ebx,%rax
+  400811:	48 8d 14 40          	lea    (%rax,%rax,2),%rdx
+  400815:	48 8d 04 d5 00 00 00 	lea    0x0(,%rdx,8),%rax
+  40081c:	00 
+  40081d:	4c 8b b0 80 20 60 00 	mov    0x602080(%rax),%r14
+  400824:	4d 85 f6             	test   %r14,%r14
+  400827:	75 bd                	jne    4007e6 <main+0x47>
+    if(strcmp(alg_name, algs[i].name) == 0){
+      alg_func = algs[i].alg_func;
+    }
+  }
+  if(alg_func == NULL){
+  400829:	4d 85 e4             	test   %r12,%r12
+  40082c:	75 2a                	jne    400858 <main+0xb9>
+  40082e:	48 89 ea             	mov    %rbp,%rdx
+  400831:	be 1f 0c 40 00       	mov    $0x400c1f,%esi
+  400836:	bf 01 00 00 00       	mov    $0x1,%edi
+  40083b:	b8 00 00 00 00       	mov    $0x0,%eax
+  400840:	e8 bb fd ff ff       	callq  400600 <__printf_chk@plt>
+    printf("Unknown algorithm '%s'\n",alg_name);
+    print_usage(argv[0]);
+  400845:	49 8b 7d 00          	mov    0x0(%r13),%rdi
+  400849:	e8 c8 fe ff ff       	callq  400716 <print_usage>
+    return 1;
+  40084e:	b8 01 00 00 00       	mov    $0x1,%eax
+  400853:	e9 94 00 00 00       	jmpq   4008ec <main+0x14d>
+  }
+
+  // determine number of iterations
+  unsigned long mult = atol(argv[2]);
+  400858:	49 8b 7d 10          	mov    0x10(%r13),%rdi
+  return (int) strtol (__nptr, (char **) NULL, 10);
+}
+__extern_inline long int
+__NTH (atol (const char *__nptr))
+{
+  return strtol (__nptr, (char **) NULL, 10);
+  40085c:	ba 0a 00 00 00       	mov    $0xa,%edx
+  400861:	be 00 00 00 00       	mov    $0x0,%esi
+  400866:	e8 75 fd ff ff       	callq  4005e0 <strtol@plt>
+  40086b:	49 89 c6             	mov    %rax,%r14
+  unsigned long exp  = atol(argv[3]);
+  40086e:	49 8b 7d 18          	mov    0x18(%r13),%rdi
+  400872:	ba 0a 00 00 00       	mov    $0xa,%edx
+  400877:	be 00 00 00 00       	mov    $0x0,%esi
+  40087c:	e8 5f fd ff ff       	callq  4005e0 <strtol@plt>
+  400881:	49 89 c0             	mov    %rax,%r8
+  unsigned long one  = 1;                    // bothersome but necessary
+  unsigned long iters = mult * (one << exp); // exponentiate 2 with a shift
+  400884:	bb 01 00 00 00       	mov    $0x1,%ebx
+  400889:	89 c1                	mov    %eax,%ecx
+  40088b:	48 d3 e3             	shl    %cl,%rbx
+  40088e:	49 0f af de          	imul   %r14,%rbx
+
+  unsigned long start = 0;
+  400892:	48 c7 44 24 08 00 00 	movq   $0x0,0x8(%rsp)
+  400899:	00 00 
+  unsigned long delta = 3;
+  40089b:	48 c7 44 24 10 03 00 	movq   $0x3,0x10(%rsp)
+  4008a2:	00 00 
+  4008a4:	49 89 d9             	mov    %rbx,%r9
+  4008a7:	4c 89 f1             	mov    %r14,%rcx
+  4008aa:	48 89 ea             	mov    %rbp,%rdx
+  4008ad:	be 88 0c 40 00       	mov    $0x400c88,%esi
+  4008b2:	bf 01 00 00 00       	mov    $0x1,%edi
+  4008b7:	b8 00 00 00 00       	mov    $0x0,%eax
+  4008bc:	e8 3f fd ff ff       	callq  400600 <__printf_chk@plt>
+
+  printf("%s for %lu * 2^{%lu} = %lu iterations... ",alg_name,mult,exp,iters);
+  fflush(stdout);
+  4008c1:	48 8b 3d f0 18 20 00 	mov    0x2018f0(%rip),%rdi        # 6021b8 <__TMC_END__>
+  4008c8:	e8 23 fd ff ff       	callq  4005f0 <fflush@plt>
+  alg_func(iters, &start, &delta);         // run the specified algorithm
+  4008cd:	48 8d 54 24 10       	lea    0x10(%rsp),%rdx
+  4008d2:	48 8d 74 24 08       	lea    0x8(%rsp),%rsi
+  4008d7:	48 89 df             	mov    %rbx,%rdi
+  4008da:	41 ff d4             	callq  *%r12
+  4008dd:	bf 37 0c 40 00       	mov    $0x400c37,%edi
+  4008e2:	e8 b9 fc ff ff       	callq  4005a0 <puts@plt>
+  printf("complete\n");
+
+  return 0;
+  4008e7:	b8 00 00 00 00       	mov    $0x0,%eax
+}
+  4008ec:	48 8b 4c 24 18       	mov    0x18(%rsp),%rcx
+  4008f1:	64 48 33 0c 25 28 00 	xor    %fs:0x28,%rcx
+  4008f8:	00 00 
+  4008fa:	74 05                	je     400901 <main+0x162>
+  4008fc:	e8 af fc ff ff       	callq  4005b0 <__stack_chk_fail@plt>
+  400901:	48 83 c4 20          	add    $0x20,%rsp
+  400905:	5b                   	pop    %rbx
+  400906:	5d                   	pop    %rbp
+  400907:	41 5c                	pop    %r12
+  400909:	41 5d                	pop    %r13
+  40090b:	41 5e                	pop    %r14
+  40090d:	c3                   	retq   
+
+000000000040090e <add1_sep>:
+// Loops involving ALU operations to demonstrate superscalar behavior
+
+// only add
+void add1_sep(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long ret = *start;
+  40090e:	48 8b 0e             	mov    (%rsi),%rcx
+  unsigned long inc = *delta;
+  400911:	48 8b 12             	mov    (%rdx),%rdx
+  for(unsigned long i=0; i<iters; i++){
+  400914:	b8 00 00 00 00       	mov    $0x0,%eax
+  400919:	eb 07                	jmp    400922 <add1_sep+0x14>
+    ret += inc;
+  40091b:	48 01 d1             	add    %rdx,%rcx
+// only add
+void add1_sep(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long ret = *start;
+  unsigned long inc = *delta;
+  for(unsigned long i=0; i<iters; i++){
+  40091e:	48 83 c0 01          	add    $0x1,%rax
+  400922:	48 39 f8             	cmp    %rdi,%rax
+  400925:	72 f4                	jb     40091b <add1_sep+0xd>
+    ret += inc;
+  }
+  *start = ret;
+  400927:	48 89 0e             	mov    %rcx,(%rsi)
+  40092a:	c3                   	retq   
+
+000000000040092b <add2_sep>:
+// Add twice in a loop to separate locations
+void add2_sep(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  // Compiler tries to optimize away multiple adds; prevent this with
+  // wonky constants
+  unsigned long retA = *start;
+  40092b:	4c 8b 06             	mov    (%rsi),%r8
+  unsigned long retB = retA + 19;     // start a different spot
+  40092e:	49 8d 48 13          	lea    0x13(%r8),%rcx
+  unsigned long delA = *delta;
+  400932:	48 8b 12             	mov    (%rdx),%rdx
+  unsigned long delB = delA * 3 + 17; // add a different update
+  400935:	4c 8d 4c 52 11       	lea    0x11(%rdx,%rdx,2),%r9
+  for(unsigned long i=0; i<iters; i++){ 
+  40093a:	b8 00 00 00 00       	mov    $0x0,%eax
+  40093f:	eb 0a                	jmp    40094b <add2_sep+0x20>
+    retA += delA;
+  400941:	49 01 d0             	add    %rdx,%r8
+    retB += delB;
+  400944:	4c 01 c9             	add    %r9,%rcx
+  // wonky constants
+  unsigned long retA = *start;
+  unsigned long retB = retA + 19;     // start a different spot
+  unsigned long delA = *delta;
+  unsigned long delB = delA * 3 + 17; // add a different update
+  for(unsigned long i=0; i<iters; i++){ 
+  400947:	48 83 c0 01          	add    $0x1,%rax
+  40094b:	48 39 f8             	cmp    %rdi,%rax
+  40094e:	72 f1                	jb     400941 <add2_sep+0x16>
+    retA += delA;
+    retB += delB;
+  }
+  *start = retA+retB;
+  400950:	4c 01 c1             	add    %r8,%rcx
+  400953:	48 89 0e             	mov    %rcx,(%rsi)
+  400956:	c3                   	retq   
+
+0000000000400957 <add2_same>:
+}
+
+// Add twice in a loop to same location
+void add2_same(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long retA = *start;
+  400957:	48 8b 06             	mov    (%rsi),%rax
+  unsigned long delA = *delta;
+  40095a:	48 8b 0a             	mov    (%rdx),%rcx
+  unsigned long delB = delA * 3 + 17; // add a different update
+  40095d:	4c 8d 44 49 11       	lea    0x11(%rcx,%rcx,2),%r8
+  for(unsigned long i=0; i<iters; i++){ 
+  400962:	ba 00 00 00 00       	mov    $0x0,%edx
+  400967:	eb 0a                	jmp    400973 <add2_same+0x1c>
+    retA += delA;
+  400969:	48 01 c8             	add    %rcx,%rax
+    retA += delB;
+  40096c:	4c 01 c0             	add    %r8,%rax
+void add2_same(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long retA = *start;
+  unsigned long delA = *delta;
+  unsigned long delB = delA * 3 + 17; // add a different update
+  for(unsigned long i=0; i<iters; i++){ 
+  40096f:	48 83 c2 01          	add    $0x1,%rdx
+  400973:	48 39 fa             	cmp    %rdi,%rdx
+  400976:	72 f1                	jb     400969 <add2_same+0x12>
+    retA += delA;
+    retA += delB;
+  }
+  *start = retA;
+  400978:	48 89 06             	mov    %rax,(%rsi)
+  40097b:	c3                   	retq   
+
+000000000040097c <add3_sep>:
+// Add three times in a loop to separate locations
+void add3_sep(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  // Compiler tries to optimize away multiple adds; prevent this with
+  // wonky constants
+  unsigned long retA = *start;
+  40097c:	4c 8b 06             	mov    (%rsi),%r8
+  unsigned long retB = retA + 19;     // start at different spots
+  40097f:	49 8d 48 13          	lea    0x13(%r8),%rcx
+  unsigned long retC = retB + 193;    
+  400983:	4d 8d 88 d4 00 00 00 	lea    0xd4(%r8),%r9
+  unsigned long delA = *delta;
+  40098a:	4c 8b 12             	mov    (%rdx),%r10
+  unsigned long delB = delA * 3 + 17;   // add a different update
+  40098d:	4f 8d 5c 52 11       	lea    0x11(%r10,%r10,2),%r11
+  unsigned long delC = delB * 632 - 19; // add a different update
+  400992:	49 69 d3 78 02 00 00 	imul   $0x278,%r11,%rdx
+  400999:	48 83 ea 13          	sub    $0x13,%rdx
+  for(unsigned long i=0; i<iters; i++){ 
+  40099d:	b8 00 00 00 00       	mov    $0x0,%eax
+  4009a2:	eb 0d                	jmp    4009b1 <add3_sep+0x35>
+    retA += delA;
+  4009a4:	4d 01 d0             	add    %r10,%r8
+    retB += delB;
+  4009a7:	4c 01 d9             	add    %r11,%rcx
+    retC += delC;
+  4009aa:	49 01 d1             	add    %rdx,%r9
+  unsigned long retB = retA + 19;     // start at different spots
+  unsigned long retC = retB + 193;    
+  unsigned long delA = *delta;
+  unsigned long delB = delA * 3 + 17;   // add a different update
+  unsigned long delC = delB * 632 - 19; // add a different update
+  for(unsigned long i=0; i<iters; i++){ 
+  4009ad:	48 83 c0 01          	add    $0x1,%rax
+  4009b1:	48 39 f8             	cmp    %rdi,%rax
+  4009b4:	72 ee                	jb     4009a4 <add3_sep+0x28>
+    retA += delA;
+    retB += delB;
+    retC += delC;
+  }
+  *start = retA+retB+retC;
+  4009b6:	4c 01 c1             	add    %r8,%rcx
+  4009b9:	4c 01 c9             	add    %r9,%rcx
+  4009bc:	48 89 0e             	mov    %rcx,(%rsi)
+  4009bf:	c3                   	retq   
+
+00000000004009c0 <mul1_sep>:
+
+
+// only multiply
+void mul1_sep(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long ret = *start;
+  4009c0:	48 8b 0e             	mov    (%rsi),%rcx
+  unsigned long mul = *delta;
+  4009c3:	48 8b 12             	mov    (%rdx),%rdx
+  for(unsigned long i=0; i<iters; i++){
+  4009c6:	b8 00 00 00 00       	mov    $0x0,%eax
+  4009cb:	eb 08                	jmp    4009d5 <mul1_sep+0x15>
+    ret *= mul;
+  4009cd:	48 0f af ca          	imul   %rdx,%rcx
+// only multiply
+void mul1_sep(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long ret = *start;
+  unsigned long mul = *delta;
+  for(unsigned long i=0; i<iters; i++){
+  4009d1:	48 83 c0 01          	add    $0x1,%rax
+  4009d5:	48 39 f8             	cmp    %rdi,%rax
+  4009d8:	72 f3                	jb     4009cd <mul1_sep+0xd>
+    ret *= mul;
+  }
+  *start = ret;
+  4009da:	48 89 0e             	mov    %rcx,(%rsi)
+  4009dd:	c3                   	retq   
+
+00000000004009de <mul2_sep>:
+// multiply twice in a loop to separate locations
+void mul2_sep(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  // Compiler tries to optimize away multiple adds; prevent this with
+  // wonky constants
+  unsigned long retA = *start;
+  4009de:	4c 8b 06             	mov    (%rsi),%r8
+  unsigned long retB = retA + 19;     // start a different spot
+  4009e1:	49 8d 48 13          	lea    0x13(%r8),%rcx
+  unsigned long delA = *delta;
+  4009e5:	48 8b 12             	mov    (%rdx),%rdx
+  unsigned long delB = delA * 3 + 17; // add a different update
+  4009e8:	4c 8d 4c 52 11       	lea    0x11(%rdx,%rdx,2),%r9
+  for(unsigned long i=0; i<iters; i++){ 
+  4009ed:	b8 00 00 00 00       	mov    $0x0,%eax
+  4009f2:	eb 0c                	jmp    400a00 <mul2_sep+0x22>
+    retA *= delA;
+  4009f4:	4c 0f af c2          	imul   %rdx,%r8
+    retB *= delB;
+  4009f8:	49 0f af c9          	imul   %r9,%rcx
+  // wonky constants
+  unsigned long retA = *start;
+  unsigned long retB = retA + 19;     // start a different spot
+  unsigned long delA = *delta;
+  unsigned long delB = delA * 3 + 17; // add a different update
+  for(unsigned long i=0; i<iters; i++){ 
+  4009fc:	48 83 c0 01          	add    $0x1,%rax
+  400a00:	48 39 f8             	cmp    %rdi,%rax
+  400a03:	72 ef                	jb     4009f4 <mul2_sep+0x16>
+    retA *= delA;
+    retB *= delB;
+  }
+  *start = retA+retB;
+  400a05:	4c 01 c1             	add    %r8,%rcx
+  400a08:	48 89 0e             	mov    %rcx,(%rsi)
+  400a0b:	c3                   	retq   
+
+0000000000400a0c <mul3_sep>:
+// Multiply three times in a loop, separate locations
+void mul3_sep(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  // Compiler tries to optimize away multiple adds; prevent this with
+  // wonky constants
+  unsigned long retA = *start;
+  400a0c:	4c 8b 06             	mov    (%rsi),%r8
+  unsigned long retB = retA + 19;     // start at different spots
+  400a0f:	49 8d 48 13          	lea    0x13(%r8),%rcx
+  unsigned long retC = retB + 193;    
+  400a13:	4d 8d 88 d4 00 00 00 	lea    0xd4(%r8),%r9
+  unsigned long delA = *delta;
+  400a1a:	4c 8b 12             	mov    (%rdx),%r10
+  unsigned long delB = delA * 3 + 17;   // add a different update
+  400a1d:	4f 8d 5c 52 11       	lea    0x11(%r10,%r10,2),%r11
+  unsigned long delC = delB * 632 - 19; // add a different update
+  400a22:	49 69 d3 78 02 00 00 	imul   $0x278,%r11,%rdx
+  400a29:	48 83 ea 13          	sub    $0x13,%rdx
+  for(unsigned long i=0; i<iters; i++){ 
+  400a2d:	b8 00 00 00 00       	mov    $0x0,%eax
+  400a32:	eb 10                	jmp    400a44 <mul3_sep+0x38>
+    retA *= delA;
+  400a34:	4d 0f af c2          	imul   %r10,%r8
+    retB *= delB;
+  400a38:	49 0f af cb          	imul   %r11,%rcx
+    retC *= delC;
+  400a3c:	4c 0f af ca          	imul   %rdx,%r9
+  unsigned long retB = retA + 19;     // start at different spots
+  unsigned long retC = retB + 193;    
+  unsigned long delA = *delta;
+  unsigned long delB = delA * 3 + 17;   // add a different update
+  unsigned long delC = delB * 632 - 19; // add a different update
+  for(unsigned long i=0; i<iters; i++){ 
+  400a40:	48 83 c0 01          	add    $0x1,%rax
+  400a44:	48 39 f8             	cmp    %rdi,%rax
+  400a47:	72 eb                	jb     400a34 <mul3_sep+0x28>
+    retA *= delA;
+    retB *= delB;
+    retC *= delC;
+  }
+  *start = retA+retB+retC;
+  400a49:	4c 01 c1             	add    %r8,%rcx
+  400a4c:	4c 01 c9             	add    %r9,%rcx
+  400a4f:	48 89 0e             	mov    %rcx,(%rsi)
+  400a52:	c3                   	retq   
+
+0000000000400a53 <mul2_same>:
+// multiply twice in a loop to same locations
+void mul2_same(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  // Compiler tries to optimize away multiple adds; prevent this with
+  // wonky constants
+  unsigned long retA = *start;
+  400a53:	48 8b 06             	mov    (%rsi),%rax
+  unsigned long delA = *delta;
+  400a56:	48 8b 0a             	mov    (%rdx),%rcx
+  unsigned long delB = delA * 3 + 17; // add a different update
+  400a59:	4c 8d 44 49 11       	lea    0x11(%rcx,%rcx,2),%r8
+  for(unsigned long i=0; i<iters; i++){ 
+  400a5e:	ba 00 00 00 00       	mov    $0x0,%edx
+  400a63:	eb 0c                	jmp    400a71 <mul2_same+0x1e>
+    retA *= delA;
+  400a65:	48 0f af c1          	imul   %rcx,%rax
+    retA *= delB;
+  400a69:	49 0f af c0          	imul   %r8,%rax
+  // Compiler tries to optimize away multiple adds; prevent this with
+  // wonky constants
+  unsigned long retA = *start;
+  unsigned long delA = *delta;
+  unsigned long delB = delA * 3 + 17; // add a different update
+  for(unsigned long i=0; i<iters; i++){ 
+  400a6d:	48 83 c2 01          	add    $0x1,%rdx
+  400a71:	48 39 fa             	cmp    %rdi,%rdx
+  400a74:	72 ef                	jb     400a65 <mul2_same+0x12>
+    retA *= delA;
+    retA *= delB;
+  }
+  *start = retA;
+  400a76:	48 89 06             	mov    %rax,(%rsi)
+  400a79:	c3                   	retq   
+
+0000000000400a7a <add2_and_mul_sep>:
+}
+
+// Add and multiply to separate destinations
+void add2_and_mul_sep(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long retA = *start;
+  400a7a:	48 8b 0e             	mov    (%rsi),%rcx
+  unsigned long retB = *start + 19;
+  400a7d:	4c 8d 49 13          	lea    0x13(%rcx),%r9
+  unsigned long retM = *start;
+  unsigned long del = *delta;
+  400a81:	48 8b 02             	mov    (%rdx),%rax
+  unsigned long delB = del * 3 + 17; // add a different update
+  400a84:	4c 8d 54 40 11       	lea    0x11(%rax,%rax,2),%r10
+// Add and multiply to separate destinations
+void add2_and_mul_sep(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long retA = *start;
+  unsigned long retB = *start + 19;
+  unsigned long retM = *start;
+  400a89:	49 89 c8             	mov    %rcx,%r8
+  unsigned long del = *delta;
+  unsigned long delB = del * 3 + 17; // add a different update
+
+  for(unsigned long i=0; i<iters; i++){
+  400a8c:	ba 00 00 00 00       	mov    $0x0,%edx
+  400a91:	eb 16                	jmp    400aa9 <add2_and_mul_sep+0x2f>
+    retA += del;
+  400a93:	48 01 c1             	add    %rax,%rcx
+    retM *= del;
+  400a96:	4c 0f af c0          	imul   %rax,%r8
+    if(del <= 10000){           // force comparison and potential jump
+  400a9a:	48 3d 10 27 00 00    	cmp    $0x2710,%rax
+  400aa0:	77 03                	ja     400aa5 <add2_and_mul_sep+0x2b>
+      retB += delB;             // to be comparable to add1_then_mul_sep
+  400aa2:	4d 01 d1             	add    %r10,%r9
+  unsigned long retB = *start + 19;
+  unsigned long retM = *start;
+  unsigned long del = *delta;
+  unsigned long delB = del * 3 + 17; // add a different update
+
+  for(unsigned long i=0; i<iters; i++){
+  400aa5:	48 83 c2 01          	add    $0x1,%rdx
+  400aa9:	48 39 fa             	cmp    %rdi,%rdx
+  400aac:	72 e5                	jb     400a93 <add2_and_mul_sep+0x19>
+    retM *= del;
+    if(del <= 10000){           // force comparison and potential jump
+      retB += delB;             // to be comparable to add1_then_mul_sep
+    }
+  }
+  *start = retA+retB+retM;
+  400aae:	4c 01 c9             	add    %r9,%rcx
+  400ab1:	49 01 c8             	add    %rcx,%r8
+  400ab4:	4c 89 06             	mov    %r8,(%rsi)
+  400ab7:	c3                   	retq   
+
+0000000000400ab8 <add2_and_mul_same>:
+}
+
+// Add and multiply to the same destination
+void add2_and_mul_same(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long ret = *start;
+  400ab8:	48 8b 06             	mov    (%rsi),%rax
+  unsigned long del = *delta;
+  400abb:	48 8b 12             	mov    (%rdx),%rdx
+  unsigned long delB = del * 3 + 17; // add a different update
+  400abe:	4c 8d 44 52 11       	lea    0x11(%rdx,%rdx,2),%r8
+  for(unsigned long i=0; i<iters; i++){
+  400ac3:	b9 00 00 00 00       	mov    $0x0,%ecx
+  400ac8:	eb 17                	jmp    400ae1 <add2_and_mul_same+0x29>
+    ret += del;
+  400aca:	48 01 d0             	add    %rdx,%rax
+    ret *= del;
+  400acd:	48 0f af c2          	imul   %rdx,%rax
+    if(del <= 10000){           // force comparison and potential jump  
+  400ad1:	48 81 fa 10 27 00 00 	cmp    $0x2710,%rdx
+  400ad8:	77 03                	ja     400add <add2_and_mul_same+0x25>
+      ret += delB;              // to be comparable to add1_then_mul_sep
+  400ada:	4c 01 c0             	add    %r8,%rax
+void add2_and_mul_same(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long ret = *start;
+  unsigned long del = *delta;
+  unsigned long delB = del * 3 + 17; // add a different update
+  for(unsigned long i=0; i<iters; i++){
+  400add:	48 83 c1 01          	add    $0x1,%rcx
+  400ae1:	48 39 f9             	cmp    %rdi,%rcx
+  400ae4:	72 e4                	jb     400aca <add2_and_mul_same+0x12>
+    ret *= del;
+    if(del <= 10000){           // force comparison and potential jump  
+      ret += delB;              // to be comparable to add1_then_mul_sep
+    }
+  }
+  *start = ret;
+  400ae6:	48 89 06             	mov    %rax,(%rsi)
+  400ae9:	c3                   	retq   
+
+0000000000400aea <add1_then_mul_sep>:
+
+
+// Add in a loop. Then multiply in a loop. Separate destinations.
+void add1_then_mul_sep(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long retA = *start;
+  400aea:	48 8b 0e             	mov    (%rsi),%rcx
+  unsigned long retM = *start;
+  unsigned long del = *delta;
+  400aed:	4c 8b 02             	mov    (%rdx),%r8
+
+
+// Add in a loop. Then multiply in a loop. Separate destinations.
+void add1_then_mul_sep(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long retA = *start;
+  400af0:	48 89 ca             	mov    %rcx,%rdx
+  unsigned long retM = *start;
+  unsigned long del = *delta;
+  for(unsigned long i=0; i<iters; i++){ // add first
+  400af3:	b8 00 00 00 00       	mov    $0x0,%eax
+  400af8:	eb 07                	jmp    400b01 <add1_then_mul_sep+0x17>
+    retA += del;
+  400afa:	4c 01 c2             	add    %r8,%rdx
+void add1_then_mul_sep(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long retA = *start;
+  unsigned long retM = *start;
+  unsigned long del = *delta;
+  for(unsigned long i=0; i<iters; i++){ // add first
+  400afd:	48 83 c0 01          	add    $0x1,%rax
+  400b01:	48 39 f8             	cmp    %rdi,%rax
+  400b04:	72 f4                	jb     400afa <add1_then_mul_sep+0x10>
+  400b06:	b8 00 00 00 00       	mov    $0x0,%eax
+  400b0b:	eb 08                	jmp    400b15 <add1_then_mul_sep+0x2b>
+    retA += del;
+  }
+  for(unsigned long i=0; i<iters; i++){ // then multiply
+    retM *= del;
+  400b0d:	49 0f af c8          	imul   %r8,%rcx
+  unsigned long retM = *start;
+  unsigned long del = *delta;
+  for(unsigned long i=0; i<iters; i++){ // add first
+    retA += del;
+  }
+  for(unsigned long i=0; i<iters; i++){ // then multiply
+  400b11:	48 83 c0 01          	add    $0x1,%rax
+  400b15:	48 39 f8             	cmp    %rdi,%rax
+  400b18:	72 f3                	jb     400b0d <add1_then_mul_sep+0x23>
+    retM *= del;
+  }
+  *start = retA+retM;
+  400b1a:	48 01 d1             	add    %rdx,%rcx
+  400b1d:	48 89 0e             	mov    %rcx,(%rsi)
+  400b20:	c3                   	retq   
+
+0000000000400b21 <add1_then_mul_same>:
+
+
+// Add in a loop. Then multiply in a loop. Same destinations.
+void add1_then_mul_same(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long ret = *start;
+  400b21:	48 8b 06             	mov    (%rsi),%rax
+  unsigned long del = *delta;
+  400b24:	48 8b 0a             	mov    (%rdx),%rcx
+  for(unsigned long i=0; i<iters; i++){ // add first
+  400b27:	ba 00 00 00 00       	mov    $0x0,%edx
+  400b2c:	eb 07                	jmp    400b35 <add1_then_mul_same+0x14>
+    ret += del;
+  400b2e:	48 01 c8             	add    %rcx,%rax
+// Add in a loop. Then multiply in a loop. Same destinations.
+void add1_then_mul_same(unsigned long iters, unsigned long *start, unsigned long *delta)
+{
+  unsigned long ret = *start;
+  unsigned long del = *delta;
+  for(unsigned long i=0; i<iters; i++){ // add first
+  400b31:	48 83 c2 01          	add    $0x1,%rdx
+  400b35:	48 39 fa             	cmp    %rdi,%rdx
+  400b38:	72 f4                	jb     400b2e <add1_then_mul_same+0xd>
+  400b3a:	ba 00 00 00 00       	mov    $0x0,%edx
+  400b3f:	eb 08                	jmp    400b49 <add1_then_mul_same+0x28>
+    ret += del;
+  }
+  for(unsigned long i=0; i<iters; i++){ // then multiply
+    ret *= del;
+  400b41:	48 0f af c1          	imul   %rcx,%rax
+  unsigned long ret = *start;
+  unsigned long del = *delta;
+  for(unsigned long i=0; i<iters; i++){ // add first
+    ret += del;
+  }
+  for(unsigned long i=0; i<iters; i++){ // then multiply
+  400b45:	48 83 c2 01          	add    $0x1,%rdx
+  400b49:	48 39 fa             	cmp    %rdi,%rdx
+  400b4c:	72 f3                	jb     400b41 <add1_then_mul_same+0x20>
+    ret *= del;
+  }
+  *start = ret;
+  400b4e:	48 89 06             	mov    %rax,(%rsi)
+  400b51:	c3                   	retq   
+  400b52:	66 2e 0f 1f 84 00 00 	nopw   %cs:0x0(%rax,%rax,1)
+  400b59:	00 00 00 
+  400b5c:	0f 1f 40 00          	nopl   0x0(%rax)
+
+0000000000400b60 <__libc_csu_init>:
+  400b60:	41 57                	push   %r15
+  400b62:	41 56                	push   %r14
+  400b64:	41 89 ff             	mov    %edi,%r15d
+  400b67:	41 55                	push   %r13
+  400b69:	41 54                	push   %r12
+  400b6b:	4c 8d 25 9e 12 20 00 	lea    0x20129e(%rip),%r12        # 601e10 <__frame_dummy_init_array_entry>
+  400b72:	55                   	push   %rbp
+  400b73:	48 8d 2d 9e 12 20 00 	lea    0x20129e(%rip),%rbp        # 601e18 <__init_array_end>
+  400b7a:	53                   	push   %rbx
+  400b7b:	49 89 f6             	mov    %rsi,%r14
+  400b7e:	49 89 d5             	mov    %rdx,%r13
+  400b81:	4c 29 e5             	sub    %r12,%rbp
+  400b84:	48 83 ec 08          	sub    $0x8,%rsp
+  400b88:	48 c1 fd 03          	sar    $0x3,%rbp
+  400b8c:	e8 df f9 ff ff       	callq  400570 <_init>
+  400b91:	48 85 ed             	test   %rbp,%rbp
+  400b94:	74 20                	je     400bb6 <__libc_csu_init+0x56>
+  400b96:	31 db                	xor    %ebx,%ebx
+  400b98:	0f 1f 84 00 00 00 00 	nopl   0x0(%rax,%rax,1)
+  400b9f:	00 
+  400ba0:	4c 89 ea             	mov    %r13,%rdx
+  400ba3:	4c 89 f6             	mov    %r14,%rsi
+  400ba6:	44 89 ff             	mov    %r15d,%edi
+  400ba9:	41 ff 14 dc          	callq  *(%r12,%rbx,8)
+  400bad:	48 83 c3 01          	add    $0x1,%rbx
+  400bb1:	48 39 eb             	cmp    %rbp,%rbx
+  400bb4:	75 ea                	jne    400ba0 <__libc_csu_init+0x40>
+  400bb6:	48 83 c4 08          	add    $0x8,%rsp
+  400bba:	5b                   	pop    %rbx
+  400bbb:	5d                   	pop    %rbp
+  400bbc:	41 5c                	pop    %r12
+  400bbe:	41 5d                	pop    %r13
+  400bc0:	41 5e                	pop    %r14
+  400bc2:	41 5f                	pop    %r15
+  400bc4:	c3                   	retq   
+  400bc5:	90                   	nop
+  400bc6:	66 2e 0f 1f 84 00 00 	nopw   %cs:0x0(%rax,%rax,1)
+  400bcd:	00 00 00 
+
+0000000000400bd0 <__libc_csu_fini>:
+  400bd0:	f3 c3                	repz retq 
+
+Disassembly of section .fini:
+
+0000000000400bd4 <_fini>:
+  400bd4:	48 83 ec 08          	sub    $0x8,%rsp
+  400bd8:	48 83 c4 08          	add    $0x8,%rsp
+  400bdc:	c3                   	retq   

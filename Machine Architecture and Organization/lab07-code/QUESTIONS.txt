@@ -1,0 +1,235 @@
+			   __________________
+
+			    LAB 07 QUESTIONS
+			   __________________
+
+
+- Name: (FILL THIS in)
+- NetID: (THE kauf0095 IN kauf0095@umn.edu)
+
+Answer the questions below according to the lab specification. Write
+your answers directly in this text file and submit it to complete the
+lab.
+
+
+PROBLEM 1: Coins Assembly code
+==============================
+
+  The code pack contains the following files.
+
+  ------------------------------------------------------------------------
+   FILE               Descriptions                                        
+  ------------------------------------------------------------------------
+   coins_main.c       main function to call the above                     
+   coins_funcs.c      two functions manipulating the `coins_t' structure  
+   coins_funcs_asm.s  incomplete assembly versions of the above functions 
+  ------------------------------------------------------------------------
+
+  The purpose of this problem is to complete the assembly code in
+  `coins_funcs_asm.s' so that the functions there act identically to the
+  C versions.
+
+  Compile and the C version using the below:
+  ,----
+  | > gcc coins_main.c coins_funcs.c
+  | > ./a.out 24
+  | 24 cents is...
+  | 0 quarters
+  | 2 dimes
+  | 0 nickels
+  | 4 pennies
+  | which is 24 cents
+  | 
+  | > ./a.out 63
+  | 63 cents is...
+  | 2 quarters
+  | 1 dimes
+  | 0 nickels
+  | 3 pennies
+  | which is 63 cents
+  `----
+
+  After completing the problems the following should compile and produce
+  the same results.
+
+  Compile and the C version using the below:
+  ,----
+  | > gcc coins_main.c coins_funcs_asm.s
+  | > ./a.out 24
+  | 24 cents is...
+  | 0 quarters
+  | 2 dimes
+  | 0 nickels
+  | 4 pennies
+  | which is 24 cents
+  `----
+
+  Edit coins_funcs_asm.s to complete it and answer the questions below.
+
+
+A
+~
+
+  Consider the first block of the assembly function marked BLOCK A.
+  Describe what it is doing and how it relates to the C code in
+  `coins_funcs.c'. Mention the purpose of the code around the label
+  .OOB.
+
+  this piece is related to:
+  if(cents < 0 || cents > 99){
+    return 1;
+  }
+
+  cmpl	$99,%edi # compare $99, %edi
+  jg      .OOB   # jump to .00B if %edi(cents) is greater than $99
+  cmpl  $0 ,%edi # compare $0 , %edi
+  jl	  .OOB   # jump to .00B if %edi(cents) is less than 0 
+
+
+B
+~
+
+  BLOCK B performs a division operation. Based on the comments and
+  assembly operations, describe what is going on, why the %eax register
+  is used, and why the movb instruction is employed.
+
+movl    %edi,%eax               # %eax now has cents; %eax is going to be divided by %r8d. afterwards, %eax will hold qutient
+				# %edx will hold remainders.
+        cqto                    # prep for division
+	movl    $25,%r8d	# we want to get quarters here. use %r8d as the divider
+        idivl   %r8d		# divide
+        movb    %al,0(%rsi)     # the quotient is stored in %eax, but we are only interested in the information storing
+			        # in the first 8bits of %eax. Hence we use 8bits register %al and put its information into
+				# 0 - 3 bits of (%rsi)
+	movl    %edx,%eax       # cents = cents % 25; put the remainder into %eax for next division
+
+	cqto                    # prep for division
+        movl    $10,%r8d        # we want to get dimes here. use %r8d as the divider
+        idivl   %r8d		# divide
+        movb    %al,1(%rsi)     # the quotient is stored in %eax, but we are only interested in the information storing
+			        # in the first 8bits of %eax. Hence we use 8bits register %al and put its information into
+				# 4 - 7 bits of (%rsi)
+	movl    %edx,%eax       # cents = cents % 10
+	cqto   
+C
+~
+
+  Complete BLOCK C by following the pattern laid out in the preceding
+  blocks to calculate the number of nickels and pennies required and set
+  the fields of the struct pointer to appropriate values. Consider
+  carefully whether two additional divisions are required or if a single
+  divide will suffice.
+
+  movl    $5, %r8d	# we want to get nickels here. use %r8d as the divider
+  idivl   %r8d		# divide
+  movb    %al,2(%rsi)   # the quotient is stored in %eax, but we are only interested in the information storing
+			# in the first 8bits of %eax. Hence we use 8bits register %al and put its information into
+		        # 8 - 11 bits of (%rsi)
+  movb    %dl,3(%rsi)   # the remainder is sotred in %edx which has "pennies" in it, but we are only interested in
+			# in the information stroing in the frist bits of %edx. Hence we use 8bits register %dl
+			and put its information into 12 - 15 bits of (%rsi)
+
+
+D
+~
+
+  In the total_coins function, study the pattern laid out the first few
+  blocks which extract the 8-bit fields from the packed coins_t struct
+  in register rdi. Note the use of shifts with AND operations to mask
+  the low order bits to get a single field "alone" in a register before
+  doing further operations. Copy this patter to complete BLOCK D which
+  adds on nickels and pennies to the total.
+
+## Nickels
+	movq   %rdi,%rdx   # put %rdi into %rdx. %rdi has the original info of the total
+	sarq   $16,%rdx	   # shift %rdx to right by 16 because 16-23 is where the info of nickels is
+	andq   $0xFF,%rdx  # zero out all the info of %rdx except the first 8bits info, which contain nickels
+        imul   $5, %edx    # time %edx by 5
+	addl   %edx,%eax   # add %edx to %eax
+
+## Pennies
+	movq   %rdi,%rdx   # put %rdi into %rdx. %rdi has the original info of the total
+	sarq   $24,%rdx    # shift %rdx to right by 24 because 24-31 is where the info of pennies is
+	andq   $0xFF,%rdx  # zero out all the info of %rdx except the first 8bits info, which contain nickels
+        imul   $1, %edx    # time %edx by 1
+	addl   %edx,%eax   # add %edx to %eax
+
+
+PROBLEM 2: Quote Binary Debugging
+=================================
+
+  The two files `quote_main.c' and `quote_data.o' can be compiled
+  together to form an executable as in the following.
+  ,----
+  | > gcc quote_main.c quote_data.o
+  | 
+  | > a.out
+  | Complete this sentence by C++ creator Bjarne Stroustrup:
+  | C makes it easy to shoot yourself in the foot; ...
+  | 
+  | enter a number from 0 to 15: 2
+  | 
+  | 2: Java prevents you from shooting yourself in the foot by cutting off all your fingers.
+  | 
+  | Have a nice tall glass of ... NOPE.
+  `----
+  As in a previous exercise, the intention is to use the debugger to
+  detect the correct response. In this case however, the correct
+  completion is present in `quote_main.c'. However, one must enter a
+  number which selects from several responses in an attempt to match the
+  correct completion. It is possible to "brute force" the solution by
+  trying all solutions. However, the intent of the activity is to
+  explore the running code with the debugger to answer the questions
+  below. This will give insight into some stages of the binary bomb
+  assignment.
+
+
+A
+~
+
+  Use some binary utility programs to print out the symbols that are
+  present in `quote_data.o'.  Review the previous lab if you have
+  forgotten which programs can print symbols in a binary object file.
+  Speculate as to which data might pertain to where potential options
+  are stored.
+ 
+  I used strings quote_data.o and saw some interesting strings, and with nm quote_data.o, I think in function get_it and data choices may have useful information.
+	
+  Furthermore, in nm quote_data.o, I saw a data named node which indicates there must be a data structure.
+B
+~
+
+  The entry point into the assembly code in `quote_data.o' is the
+  function `get_it'.  Use either the debugger or a disassembly of the
+  object to trace whether this functions performs the entire computation
+  or if other functions are also used. Use this along with other
+  observations of the content of the `quote_data.o' file to infer what
+  kind of structure the choices are stored in.
+
+  get_it calls list_get
+
+  I found the data structure was a linked list.
+
+C
+~
+
+  Use the debugger to step through the functions in `quote_data.o'.
+  Keep in mind that the parameters to the function follow the standard
+  convention: 1st param in %rdi, second in %edi, and so forth.  You
+  should be able to identify a loop in a critical function in which the
+  choices are present.  Use `print' and `x' commands in gdb to examine
+  data pointed to be registers to help identify where the correct
+  response is located.
+
+  Recall that you can examine memory addresses pointed to registers with
+  gdb commands like the following.
+  ,----
+  | (gdb) x/d $rax   # print memory pointed to by rax as a decimal integer
+  | (gdb) x/x $rax   # print memory pointed to by rax as a hex number
+  | (gdb) x/s $rax   # print memory pointed to by rax as a string
+  `----
+
+  Include what debugger techniques you used in your answer along with
+  the index of the correct completion.
+
+  During working with function list_get, I figured out that %rdx was counting how many nodes the function had visited inside a loop and %rax was the string in the nodes. So, I used x/s $rax to print out the string until I found the correct string and the counter, $rdx, was 4 at that time, which means 4 is the correct answer. 

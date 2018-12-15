@@ -1,0 +1,178 @@
+			   __________________
+
+			    LAB 05 QUESTIONS
+			   __________________
+
+
+- Name: Ju-Yu, Chou Fu
+- NetID: chouf001
+
+Answer the questions below according to the lab specification. Write
+your answers directly in this text file and submit it to complete the
+lab.
+
+
+PROBLEM 1: C Union and Float Bits
+=================================
+
+A
+~
+
+  Compile and run union.c to see what floating point value is printed by
+  the lines.
+  ,----
+  | flint.in = 0xC378C000;        // assign an int value
+  | printf("%.4f\n",flint.fl);    // print as a float value
+  `----
+  Show the float value and explain why it has a well-defined value
+  despite no assignment of `flint.fl = ...;' appearing.
+
+  -248.7500
+  
+  Since the float fl and int in share the same memory, Line 18: flint.in = 0xC378C000; fills the 4 memory spots (1 bytes each) with C3 78 C0 00 or 00 C0 78 C3 (we don't know which endianness the machine uses yet, but we can figure it out in problem B) and Line 19: printf("%.4f\n",flint.fl); just reads whatever there has in the memory and gives us the result -248.7500
+
+  In addition, since C -> 1100, the first number, 1, tells us the result must be a negative number.
+
+B
+~
+
+  The subsequent loop
+  ,----
+  | flint.in = 0xC378C000;        // assign an int value
+  | ...
+  | for(int i=0; i<4; i++){       // print chars individually
+  |   unsigned char c = flint.ch[i];
+  |   printf("%d: %02x '%c'\n", i,c,c);
+  | }
+  `----
+  prints values of the bytes associated with `flint' as chars and
+  hexadecimal numbers.  Show its output and explain why the hex digits
+  appear in a different order from the constant flint is set to
+  initially.
+
+  0: 00 ''
+  1: c0 '�'
+  2: 78 'x'
+  3: c3 '�'
+
+  When the for-loop shows the content of flint.ch, the least significant byte first comes out first (00) and the most significant byte comes out last (c3). This tells us that this machine uses little endian and explains why the hex digits are shown in a different order.
+
+In addition, c0 and c3 are not members of ascii character table (from 0 to 7F). Hence, we got the weird characters '�'
+
+C
+~
+
+  The lines
+  ,----
+  | flint.in = flint.in | 0x80000000;
+  | printf("%.4f\n",flint.fl);    // print as a float value
+  `----
+  modify flint again. Show the resulting floating point output and
+  describe why it has the shown value.
+
+  The bitwise operator, |, in this case makes the result with no difference. Hence, the contents in the memory remain the same and prinf() print it as a float value which is -248.7500
+
+
+PROBLEM 2: GDB
+==============
+
+A debug_scramble.c
+~~~~~~~~~~~~~~~~~~
+
+  The file debug_scramble.c has a short problem which requires the
+  correct number to be given as a command line argument. An array is
+  filled with values and then scrambled. The command line must
+  correspond to the "positive" response. Due to the array scrambling it
+  is not apparent from the source code which array location contains the
+  positive response.
+
+  Use the debugger to determine the location the positive response.  For
+  each of the steps below, write the commands to issue to do the items
+  listed.
+  1. Compile debug_scramble.c with debug symbols turned on
+     
+  $ gcc -g debug_scramble.c
+
+  2. Start gdb with the resulting program
+
+  $ gdb -tui ./a.out
+
+  3. Set the arguments of the program to just 0
+
+  (gdb) set args 0
+
+  4. Set a breakpoint at a line in debug_scramble.c after the scramble
+     loop
+
+  (gdb) break 33
+
+  5. Run the program
+
+  (gdb) run
+
+  6. Print out the array after stopping at the breakpoint
+
+  (gdb) print arr // {0x400913 "nope", 0x400913 "nope", 0x400913 "nope", 0x400913 "nope",
+  		      0x400913 "nope", 0x400913 "nope", 0x400913 "nope", 0x400913 "nope",
+  		      0x400913 "nope", 0x400913 "nope", 0x400908 "you betcha", 0x400913 "nope",
+  		      0x400913 "nope", 0x400913 "nope", 0x400913 "nope", 0x400913 "nope"}
+
+  7. Locate the positive response
+
+  we can see "you betcha" is located at arr[10] 
+
+  8. Change the program arguments so that it is the correct index
+
+  (gdb) set args 10
+
+  9. Re-run the program and continue to the end
+  
+  (gdb) kill
+  (gdb) run
+  (gdb) cont      // jump to Line 33
+  (gdb) n
+  (gdb) n	  // Oh yaaah! Have some hotdish
+  (gdb) n
+  (gdb) n         // __libc_start_main (main=0x400666 <main>, argc=2, argv=0x7fffffffe468,
+    	             init=<optimized out>, fini=<optimized out>, rtld_fini=<optimized out>,
+    		     stack_end=0x7fffffffe458) at ../csu/libc-start.c:325
+  (gdb) n         // [Inferior 1 (process 73239) exited normally]
+  (gdb) n         // The program is not being run.
+
+B debug_long.c
+~~~~~~~~~~~~~~
+
+  The file debug_long.c has another short debugging problem.  It
+  requires an string which is interpreted similarly to a demonstration
+  code at the top of code.  The correct input will elicit the
+  affirmative response.
+
+  To determine the correct input take the following approach.
+  1. Break after setting the variable `lng' to its large, mysterious
+     value
+
+  (gdb) break 30 // if(chlo2.lo == lng)
+
+  2. Print the bytes of long NOT as a number but interpreted as an array
+     of characters (string). This can be done in `gdb' by coercing the
+     types as in:
+     ,----
+     | print (char []) varname
+     `----
+
+  (gdb) print (char []) 36783801071443 // "Sweet!\000"
+
+  3. This should shed light on the correct input.
+
+  (gdb) set args Sweet!
+  (gdb) run
+  (gdb) n
+  (gdb) n // Yup, equal!
+  (gdb) n
+  (gdb) n // __libc_start_main (main=0x400666 <main>, argc=2, argv=0x7fffffffe458,
+             init=<optimized out>, fini=<optimized out>, rtld_fini=<optimized out>,
+             stack_end=0x7fffffffe448) at ../csu/libc-start.c:325
+  (gdb) n // [Inferior 1 (process 83425) exited normally]
+  (gdb) n // The program is not being run.
+
+

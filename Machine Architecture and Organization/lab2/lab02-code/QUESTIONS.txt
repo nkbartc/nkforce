@@ -1,0 +1,276 @@
+			   __________________
+
+			    LAB 02 QUESTIONS
+			   __________________
+
+
+- Name: Ju-Yu, Chou Fu
+- NetID: chouf001
+
+Answer the questions below according to the lab specification. Write
+your answers directly in this text file and submit it to complete the
+lab.
+
+
+PROBLEM 1: Memory in `diagram.c'
+================================
+
+  For each of the C blocks given, give a memory diagram of the block
+  indicating memory locations and contents of cells. These blocks appear
+  in the file `diagram.c' which you can modify to print results if you
+  want to verify your answers.
+
+  MAKE SURE to accurately express the standard sizes for each of the
+  kinds of variables ON A 64-BIT MACHINE in your diagrams by placing
+  them at appropriate memory addresses that are tightly packed.
+
+
+A
+~
+
+  ,----
+  | // BLOCK A
+  | int a = 5;
+  | int b = 7;
+  | double x = 4.5;
+  | int *ip = &a;
+  | ip = &b;
+  | int c = *ip;
+  | *ip = 19;
+  | // DRAW MEMORY HERE
+  `----
+
+   ADDR   SYMB  VAL 
+  ------------------
+   #1024  a      5   
+   #1028  b      19
+   #1032  x      4.5
+   #1040  ip     #1028
+   #1048  c      7  
+
+
+B
+~
+
+  ,----
+  | // BLOCK B
+  | int arr[4] = {12, 14, 16, 18};
+  | int *arp = arr;
+  | int brr = 11;
+  | arr[1] = 23;
+  | arp[3] = 29;
+  | arp = &arr[2];
+  | *arp = 3;
+  | // DRAW MEMORY HERE
+  `----
+
+   ADDR   SYMB      VAL 
+  ----------------------
+   #2000  `arr[0]'   12 
+   #2004  `arr[1]'   23
+   #2008  `arr[2]'   3
+   #2012  `arr[3]'   29
+   #2016  `arp'      #2008
+   #2024  `brr'      11
+   
+ 
+C
+~
+
+  ,----
+  | // BLOCK C
+  | char str[8] = "hello";
+  | str[5] = 'w';
+  | char *cp = str + 6;
+  | *cp = '\0';
+  | str[0] = 'y';
+  | // DRAW MEMORY HERE
+  `----
+
+  Initial:
+
+   ADDR   SYMB      VAL  
+  -----------------------
+   #3092  cp        #3106
+   #3100  `str[0]'  y  
+   #3101  `str[1]'  e    
+   #3102  `str[2]'  l    
+   #3103  `str[3]'  l    
+   #3104  `str[4]'  o    
+   #3105  `str[5]'  w
+   #3106  `str[6]'  \0 
+   #3107  `str[7]'  ?    
+
+  Show final layout
+
+
+PROBLEM 2: Linked List Application
+==================================
+
+  This problem deals with small application spread across three files:
+  - list.h declares types and functions
+  - list_funcs.c defines linked list functions
+  - list_main.c has a usable main() function
+  You will need to compile the two C files together to produce an
+  executable program as in
+  ,----
+  | gcc list_main.c list_funcs.c
+  `----
+
+  Study the code in these and answer the following questions.
+
+
+A
+~
+
+  In `list_main.c', a function related to `scanf()' is used to read
+  input. Look up this function and describe its first argument. Also
+  mention what else this function is good for and what it returns when
+  the end of input is reached.
+  
+  scanf() always reads input from standard input (stdin).
+  fscanf()'s first arguemnt specifies which file to read
+ 
+  fscanf() allows us to have the program read a specific file or read stdin and it returns EOF if it fails to find any matches.
+  Furthermore, we can use fscanf() store values which it reads. 
+  
+
+B
+~
+
+  In `list_main.c', a function from the standard C library is used to
+  compare strings (character arrays). Describe this function, how to
+  call it, and its return value. Describe how it is used to identify
+  commands typed by a user in list_main.c. Also determine whether this
+  function gives any guidance on the sorting order of strings.
+
+  We can use the comparing function by calling strcmp(s1, s2) and it retruns 0 if s1 and s2 are
+  equal, a negative integer if s1 is less than s2, and a positvie integer if s1 is greater than
+  s2.
+
+  In `list_main.c', strcmp("any cases", cmd) is used to compare the string of the "specified cases" and cmd which is the input. If strcmp("any cases", cmd) returns 0, then the program will execute one of the if statements and do the things it's supposed to do. If strcmp("any cases", cmd) returns any number other than 0, the else statement will be executed and printf("uknown command %s\n",cmd); 
+
+  We can use strcmp()to get an int. Then we can use int to do sorting.
+
+C
+~
+
+  Examine where a `list_t' variable is declared in `list_main.c'.  Is
+  the list a stack variable or one that has memory dynamically allocated
+  with malloc() and then subsequently free()'d?  Examine the convention
+  of the `list_init()' function in `list_funcs.c'.  Does this function
+  allocate any memory or simply operate on an existing list_t? How is it
+  used with the `list_t' declared in `main()'?
+
+  The list is a stack variable.
+  list_init() just uses arrow operators to work with head and size in its field.
+  variable list is a type of list_t. list_init() takes list and sets head to NULL and size to 0
+
+D
+~
+
+  Examine the `list.h' header file. Describe the C structs that you see
+  there. What fields does a `list_t' have? What fields does a `node_t'
+  have?  What is the maximum length of strings that can be stored in the
+  linked list according to the definitions of the types?
+
+  list_t has node_t *head and int size.
+  node_t has char data[128] and struct node_struct *next.
+  The array can hold 127 characters plus \0(null character).
+
+E
+~
+
+  Examine functions such as `list_insert()' in `list_funcs.c' which
+  allocate nodes. How are they allocated?  How is the size of nodes
+  determined so that the correct amount of space is allocated? Where and
+  how is the space allocated for nodes de-allocated (which function)?
+
+  The nodes are allocated by node_insert().
+  Size is determined by malloc(sizeof(node_t)) in node_insert().
+  function list_clear() de-allocates the space allocated for nodes. list_clear() uses while loop to
+  traverse the linked list and uses free() to free every node's memory that list_clear() visits.
+
+PROBLEM 3: Linked List Extension
+================================
+
+  The files for the linked list application have places indicating where
+  a `list_contains()' function and a `contains' command should be
+  implemented.  Complete this implementation which will require you to
+  write some C code in both `list_funcs.c' and `list_main.c'.  It will
+  also require you to do some string comparisons.
+
+  Paste the following below for you answer
+  1. Your code for list_contains()
+
+  // Returns 1 if the list contains the given query and 0 otherwise.
+  
+int list_contains(list_t *list, char *query){
+  node_t *ptr = list->head;
+
+  while(ptr != NULL){
+    char *compareit = ptr->data;
+    if(strcmp(compareit, query) == 0){
+      return 1;
+    }
+    ptr = ptr->next;
+  }
+
+  return 0;
+}
+
+  2. Code you added to main() to enable the "contains" command to work
+
+    // case for "contains" command
+    else if( strcmp("contains", cmd)==0){
+      char s;
+      fscanf(stdin,"%s",&s);
+      
+      // Returns 1 if the list contains the given query and 0 otherwise.
+      printf("result: %d\n", list_contains(&list, &s) );
+    }
+
+  3. A sample session of the main application where several inserts are
+     done and contains is used to show some items are present and not
+     present
+
+list> insert 0
+list> insert 11
+list> insert 22224
+list> contains 0
+result: 1
+list> contains 2
+result: 0
+list> contains 1
+result: 0
+list> contains 11
+result: 1
+list> insert a
+list> insert b
+list> insert abc
+list> contains a
+result: 1
+list> contains ab
+result: 0
+list> contains abc
+result: 1
+
+
+
+OPTIONAL PROBLEM
+================
+
+  For fun but no extra credit, add a `int list_remove(list_t *list, char
+  *query)' function and associated `remove' command to the list
+  application.  Keep the following in mind.
+  - Follow the convention that `list_remove()' returns an integer
+    indicating no change was made (0) or something was removed (1)
+  - Do not forget to alter the size of the `list_t' struct on removal.
+  - You will need to call `free()' on the removed node to get rid of it
+    but do so AFTER re-arranging pointers associated with it.
+  - Don't forget special cases such as removing the first node in the
+    list.
+  This is a surprisingly tricky exercise to get the memory use
+  right. You may wish to use valgrind to test whether your program has
+  memory leaks or not. Ask a TA for help with this if it has not been
+  discussed in class yet (valgrind WILL be discussed later).

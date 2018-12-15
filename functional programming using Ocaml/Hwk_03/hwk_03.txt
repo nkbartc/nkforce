@@ -1,0 +1,165 @@
+Q1:
+for all natural number n, p(n) holds if p(0) holds and p(n) -> p(n+1)
+
+(Base case)
+show: power 0 x = x ^ 0
+power 0 x
+= 1.0 by def of power --- (1)
+
+consider the right hand side: x ^ 0
+x ^ 0
+= 1.0 by arith --- (2)
+(1) = (2)
+
+(Inductive case)
+show: power (n+1) x = x ^ (n+1)
+ind. hyp.: power n x = x ^ n
+power (n+1) x
+= x *. power n x by def of power
+= x *. x ^ n by ind. hyp.
+= x ^ (n+1) by arith.
+
+Q2:
+for all n in type nat, p(n) holds if p(zero) holds and p(n) -> p(succ n)
+
+(base case)
+show: power zero x = x ^ toInt(zero)
+power zero x
+= 1.0 by def of power
+= x ^ 0 by arith.
+= x ^ toInt(zero) by def of toInt
+
+(inductive case)
+show: power (succ n) x = x ^ toInt(succ n)
+ind. hyp.: power n x = x ^ toInt(n)
+power (succ n) x
+= x *. power n x by def of power
+= x *. x ^ toInt(n) by ind. hyp.
+= x ^ toInt(n+1) by arith.
+= x ^ toInt(succ n) by def of toInt
+
+Q3:
+for all x, p(x) holds if p([]) holds and p(t) -> p(h::t)
+
+let lemma = append L1 L2 = L1 @ L2; induction is over L1
+(base case for lemma)
+show: append [] L2 = [] @ L2
+append [] L2
+= L2 by def of append
+= [] @ L2 by def of @
+
+(inductive case for lemma)
+show: append x :: xs L2 = x :: xs @ L2
+ind. hyp: append xs L2 = xs @ L2
+append x :: xs L2
+= x :: (append xs L2) by def of append
+= x :: xs @ L2 by ind. hyp.
+
+back to main purpose; induction is over L1
+(base case)
+show: reverse(append [] L2) = append (reverse L2) (reverse [])
+reverse(append [] L2)
+= reverse L2 by def of append
+= reverse L2 --- (1) by def of @
+
+consider the right hand side : append (reverse L2) (reverse [])
+append (reverse L2) (reverse [])
+= append (reverse L2) [] by def of reverse
+= reverse L2 @ [] by lemma
+= reverse L2 --- (2) by def of @
+(1) = (2)
+
+(inductive case)
+show: reverse(append x :: xs L2) = append (reverse L2) (reverse x :: xs)
+ind. hyp: reverse(append xs L2) = append (reverse L2) (reverse xs)
+reverse(append x :: xs L2)
+= reverse x :: xs @ L2 by lemma
+= append (reverse xs @ L2) [x] by def of reverse
+= reverse xs @ L2 @ [x] by lemma
+= reverse (append xs L2) @ [x] bt lemma
+= append (reverse L2) (reverse xs) @ [x] by ind.hyp.
+= append (reverse L2) append reverse xs [x] by lemma
+= append (reverse L2) (reverse x :: xs) by def of reverse
+
+Q4:
+for all x, p(x) holds if p([]) holds and p(t) -> p(h::t)
+induction is over L1
+(base case)
+show: someupper([] @ L2) = someupper [] || someupper L2
+someupper([] @ L2)
+= someupper L2 by def of @ --- (1)
+
+consider the right hand side: someupper [] || someupper L2
+someupper [] || someupper L2
+= false || someupper L2 by def of someupper
+= someupper L2 by acknowledge of logic operator --- (2)
+(1) = (2)
+
+(inductive case)
+show: someupper(x :: xs @ L2) = someupper x :: xs || someupper L2
+ind. hyp.: someupper (xs @ L2) = someupper xs || someupper L2
+
+someupper(x :: xs @ L2)
+= someupper(x :: (xs @ L2)) by properties of lists
+= isupper x || someupper (xs @ L2) by def of someupper
+= isupper x || someupper xs || someupper L2 by ind. hyp.
+= someupper x :: xs || someupper by def of someupper
+
+Q5:
+for all x, p(x) holds if p([]) holds and p(t) -> p(h::t)
+(base case)
+show: someupper [] = foldupper []
+someupper []
+= false by def of someupper --- (1)
+
+consider the right hand side: foldupper []
+foldupper []
+= foldr upperor [] false by def of foldupper
+= false by def of foldr --- (2)
+(1) = (2)
+
+(inductive case)
+show: someupper x :: xs = foldupper x :: xs
+ind. hyp.: someupper xs = foldupper xs
+
+someupper x :: xs
+= isupper x || someupper xs by def of someupper
+= isupper x || foldupper xs by ind. hyp. --- (1)
+
+consider the right hand side: foldupper x :: xs
+foldupper x :: xs
+= foldr upperor x :: xs false by def of foldupper
+= upperor x (foldr upperor xs false) by def of foldr
+= upperor x foldupper xs by def of foldupper
+= isupper x || foldupper xs by def of upperor
+(1) = (2)
+
+Q6:
+for all t in type 'a tree, p(t) holds if p(leaf x) holds and p(t1) and p(t2) -> p(branch t1 t2)
+
+(base case)
+show: mintree leaf x = fold_mintree leaf x
+mintree leaf x
+= x --- (1) by def of mintree
+
+consider the right hand side = fold_mintree leaf x
+fold_mintree leaf x
+= tfold (fun x -> x) min leaf x by def of fold_mintree t
+= x by def of tfold --- (2)
+(1) = (2)
+
+(inductive case)
+show: mintree branch (t1, t2) = fold_mintree branch (t1, t2)
+ind. hyp.: mintree t1 = fold_mintree t1; mintree t2 = fold_mintree t2
+
+mintree branch (t1, t2)
+= min (mintree t1) (mintree t2) by def of mintree
+= min (fold_mintree t1) (fold_mintree t2) by ind. hyp. --- (1)
+
+
+consider the right hand side: fold_mintree branch (t1, t2)
+fold_mintree branch (t1, t2)
+= f (tfold l f t1) (tfold l f t2) by def of tfold
+= min (tfold l min t1) (tfold l min t2) by f = min
+= min (fold_mintree t1) (fold_mintree t2) by def of fold_mintree --- (2)
+(1) = (2)

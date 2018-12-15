@@ -1,0 +1,301 @@
+			   __________________
+
+			    LAB 15 QUESTIONS
+			   __________________
+
+
+- Name: (FILL THIS in)
+- NetID: (THE kauf0095 IN kauf0095@umn.edu)
+
+Answer the questions below according to the lab specification. Write
+your answers directly in this text file.
+
+
+PROBLEM 1: Dynamically Linked Shared Libraries
+==============================================
+
+(A)
+~~~
+
+  Dynamically Linked Shared Libraries differ from static counterparts in
+  that no definitions are copied into an executable.  Instead, when
+  programs linked to these are created, the definitions for some
+  functions are left undefined but marked as "link at runtime."  On
+  loading the program, the location of library code is mapped into the
+  virtual address space of the program. Since multiple programs can map
+  different addresses to the same location, only one copy of functions
+  such as `printf()' need to be in memory.
+
+  The provided code directory `ds_search_dynamic/' contains a `Makefile'
+  which will build a shared object (.so) version of a data structure
+  search library as follows.
+  ,----
+  | > cd ds_search_dynamic/
+  | 
+  | > make
+  | gcc -g -Wall -fpic -c tree.c
+  | gcc -g -Wall -fpic -c array.c
+  | gcc -g -Wall -fpic -c list.c
+  | gcc -g -Wall -fpic -c util.c
+  | gcc -shared -o libds_search.so tree.o array.o list.o util.o
+  | 
+  | > file libds_search.so 
+  | libds_search.so: ELF 64-bit LSB shared object, x86-64, version 1 (SYSV), dynamically linked
+  | 
+  | > cd ..
+  `----
+
+  Compile and link the provided `do_search.c' program against this
+  library as follows.
+
+  ,----
+  | > gcc do_search.c -lds_search -I ds_search_dynamic -L ds_search_dynamic
+  `----
+
+  Run the `ldd' utility to see what dynamic library dependencies the
+  resulting `a.out' program has and attempt to run it as shown.
+  ,----
+  | > ldd a.out
+  | ...
+  | 
+  | > ./a.out
+  | ...
+  `----
+
+  Show the output for these commands.
+
+
+Solution                                                      :solution:
+--------
+
+  ,----
+  | > gcc do_search.c -lds_search -I ds_search_dynamic -L ds_search_dynamic
+  | > ldd a.out
+  | 	linux-vdso.so.1 (0x00007ffc2313a000)
+  | 	libds_search.so => not found
+  | 	libc.so.6 => /usr/lib/libc.so.6 (0x00007fa1ca99e000)
+  | 	/lib64/ld-linux-x86-64.so.2 => /usr/lib64/ld-linux-x86-64.so.2 (0x00007fa1caf58000)
+  | > ./a.out
+  | ./a.out: error while loading shared libraries: libds_search.so: cannot open shared object file: No such file or directory
+  `----
+
+
+(B)
+~~~
+
+  Describe any problems that you encounter with running the program and
+  how to resolve them using environment variables that control where the
+  dynamic linker searches for library dependencies.
+
+
+Solution                                                      :solution:
+--------
+
+  Despite having compiled and linked against `libds_search.so', the
+  dynamic linker/loader is not aware of where it exists. This leads to
+  the program not running. To fix this, set the `LD_LIBRARY_PATH'
+  environment variable to indicate where this library exists to make it
+  runnable.
+
+  ,----
+  | > export LD_LIBRARY_PATH="ds_search_dynamic"
+  | 
+  | > ldd a.out
+  |  linux-vdso.so.1 
+  |  libds_search.so => ds_search_dynamic/libds_search.so  :-)
+  |  libc.so.6 => /usr/lib/libc.so.6 
+  |  /lib64/ld-linux-x86-64.so.2 => /usr/lib64/ld-linux-x86-64.so.2 
+  | > a.out
+  | Searching 2048 elem array, 10 repeats: 1.6470e-01 seconds
+  `----
+
+
+Problem 2: El Malloc Extension
+==============================
+
+  Consider extending the `el_malloc.c' allocator system to include the
+  following function which determines if an arbitrary memory address is
+  Not in the Heap, Used, Available, or erroneously pointing to memory
+  associated with a header or footer.
+  ,----
+  | int el_memory_kind(void *ptr);
+  | // Determines if the parameter ptr is in the heap or not. If not in
+  | // the heap, returns 0. If in the heap, determines if the ptr is in
+  | // the space of a Used or Available block. If part of a Used block,
+  | // return 1. If part of an Available block, returns 2.  If the ptr
+  | // points to the area associated with an el_blockhead_t or
+  | // el_blockfoot_t, returns -1.
+  `----
+
+  One would use this function as follows
+  ,----
+  | int *aarr = el_malloc(sizeof(int)*3);  // used space size 3
+  | int loc1a = el_memory_kind(aarr);      // 1 for Used
+  | int loc1b = el_memory_kind(&aarr[2]);  // 1 for Used
+  | 
+  | int *barr = el_malloc(sizeof(int)*3);  // used space size 3
+  | el_free(barr);                         // now available space
+  | int loc2a  = el_memory_kind(barr);     // 2 for Available 
+  | int loc2b  = el_memory_kind(&barr[2]); // 2 for Available 
+  | 
+  | int stack_var = 42;
+  | int loc3 = el_memory_kind(&stack_var); // 0 for Not in Heap
+  | int loc4 = el_memory_kind(aarr - 1);   // -1 for part of a Head/Foot
+  | int loc5 = el_memory_kind(&aarr[4]);   // -1 for part of a Head/Foot
+  `----
+
+
+(A)
+~~~
+
+  Describe how one can determine if the given memory address `ptr' is
+  part of the heap or not using fields of `el_ctl'. Write some
+  reasonably correct C code to check for in heap/out of heap.
+
+
+Solution                                                      :solution:
+--------
+
+  Check whether `ptr' is between `el_ctl' fields `heap_start' and
+  `heap_end' which correspond to the boundaries of the heap. Roughly
+  this would be
+  ,----
+  | if(ptr < el_ctl.heap_start || ptr >= el_ctl.heap_end){
+  |   return 0;
+  | }
+  `----
+  though one would need to make use of casting pointers to numbers to be
+  considered valid C as in
+  ,----
+  | // check if ptr is outside of the heap boundaries
+  | if(PTR_MINUS_PTR(ptr,el_ctl.heap_start) < 0 || 
+  |    PTR_MINUS_PTR(ptr,el_ctl.heap_end) >= 0)
+  | {
+  |   return 0;
+  | }
+  `----
+
+
+(B)
+~~~
+
+  Assume that the `ptr' parameter is in the heap and DOES NOT point to
+  any header/footer space. This means it is in the user data area of
+  some block.
+
+  Describe how one could determine whether `ptr' is in a Used or
+  Available block.  Write some C code which implements your
+  approach. Note that all solutions will involve some amount of
+  iteration/search.
+
+
+Solution                                                      :solution:
+--------
+
+  Two possible approaches: iterating over all blocks linearly or
+  iterating through all blocks in the different linked lists. Minor
+  variants on whether one checks each block for `ptr' pointing into
+  heads/feet or not: the provided solutions wait to the end to determine
+  this.
+
+  1. Iterate from the first block in the heap moving ahead via
+     `el_block_above()' calls. At each block head, determine if `ptr' is
+     within the block boundaries using comparisons against the `size'
+     field of the block. Use the field `state' which is either
+     `EL_AVAILABLE' or `EL_USED' to determine the return value.
+     ,----
+     | // search all blocks in heap
+     | el_blockhead_t *block = el_ctl.heap_start;
+     | while(block < el_ctl.heap_end){
+     |   if(ptr >= PTR_PLUS_BYTES(block, sizeof(el_blockhead_t)) &&
+     |      ptr <  PTR_PLUS_BYTES(block, sizeof(el_blockhead_t)) + block->size)
+     |   {
+     |     // found ptr in this block
+     |     if(block->state == EL_USED){ return 1; }
+     |     else                       { return 2; }
+     |   }
+     |   block = el_block_above(block);
+     | }
+     | 
+     | // not in any block space, must be part of header or footer
+     | return -1;
+     `----
+
+  2. Iterate through each linked list chasing `next' pointers.  Can
+     determine Used or Available based on which list `ptr' is found
+     in. Still need to do boundary comparisons.
+     ,----
+     | el_blockhead_t *block;
+     | 
+     | // search all blocks in heap
+     | block = el_ctl.used->beg->next;
+     | while(block != el_ctl.used->end){
+     |   if(ptr >= PTR_PLUS_BYTES(block, sizeof(el_blockhead_t)) &&
+     |      ptr <  PTR_PLUS_BYTES(block, sizeof(el_blockhead_t)) + block->size) )
+     |   {
+     |     // found ptr in this block in Used list
+     |     return 1;
+     |   }
+     |   block = block->next;
+     | }
+     | 
+     | block = el_ctl.avail->beg->next;
+     | while(block != el_ctl.avail->end){
+     |   if(ptr >= PTR_PLUS_BYTES(block, sizeof(el_blockhead_t)) &&
+     |      ptr <  PTR_PLUS_BYTES(block, sizeof(el_blockhead_t)) + block->size)
+     |   {
+     |     // found ptr in this block in Available list
+     |     return 2;
+     |   }
+     |   block = block->next;
+     | }
+     | 
+     | // not in any block space, must be part of header or footer
+     | return -1;
+     `----
+
+
+(C)
+~~~
+
+  Combining the two solutions above, provide a roughly complete
+  implementation of `el_memory_kind(void *ptr)' which includes a -1
+  return for erroneous pointers to headers/footers.
+
+
+Solution                                                      :solution:
+--------
+
+  ,----
+  | int el_memory_kind(void *ptr){
+  |   // Determines if the parameter ptr is in the heap or not. If not in
+  |   // the heap, returns 0. If in the heap, determines if the ptr is in
+  |   // the space of a Used or Available block. If part of a Used block,
+  |   // return 1. If part of an Available block, returns 2.  If the ptr
+  |   // points to the area associated with an el_blockhead_t or
+  |   // el_blockfoot_t, returns -1.
+  | 
+  |   // check if ptr is outside of the heap boundaries
+  |   if(PTR_MINUS_PTR(ptr,el_ctl.heap_start) < 0 || 
+  |      PTR_MINUS_PTR(ptr,el_ctl.heap_end) >= 0)
+  |   {
+  |      return 0;
+  |   }
+  | 
+  |   // search all blocks in heap 
+  |   el_blockhead_t *block = el_ctl.heap_start;
+  |   while(block < el_ctl.heap_end){
+  |     if(ptr >= PTR_PLUS_BYTES(block, sizeof(el_blockhead_t)) &&
+  |        ptr <  PTR_PLUS_BYTES(block, block->size) )
+  |       {
+  | 	// found ptr in this block
+  | 	if(block->state == EL_USED){ return 1; }
+  | 	else                       { return 2; }
+  |       }
+  |     block = el_block_above(block);
+  |   }
+  | 
+  |   // not in any block space, must be part of header or footer
+  |   return -1;
+  | }
+  `----

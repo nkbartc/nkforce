@@ -1,0 +1,343 @@
+			   __________________
+
+			    LAB 04 QUESTIONS
+			   __________________
+
+
+- Name: (FILL THIS in)
+- NetID: (THE kauf0095 IN kauf0095@umn.edu)
+
+Answer the questions below according to the lab specification. Write
+your answers directly in this text file and submit it to complete the
+lab.
+
+
+PROBLEM 1: Memory Diagram
+=========================
+
+  Examine the code in dog_diagram.c which uses a couple simple functions
+  with a struct.
+  ,----
+  |  1  #include <stdio.h>
+  |  2  typedef struct{
+  |  3    int age;
+  |  4    double weight;
+  |  5    char name[8];
+  |  6  } dog_t;
+  |  7  
+  |  8  void init_dog(dog_t *d){
+  |  9    strcpy(d->name, "Rolf");
+  | 10    d->age = 0;
+  | 11    d->weight = 5.0;
+  | 12    ////// POSITION A
+  | 13    return;
+  | 14  }
+  | 15  
+  | 16  void birthday(int num, dog_t *d){
+  | 17    int next = d->age + num;
+  | 18    if(next < 3){
+  | 19      d->weight += 10.0;
+  | 20    }
+  | 21    ////// POSITION B
+  | 22    d->age = next;
+  | 23    return;
+  | 24  }
+  | 25  
+  | 26  int main(){
+  | 27    dog_t dog;
+  | 28    init_dog(&dog);
+  | 29    double curwgt = dog.weight;
+  | 30    birthday(2, &dog);
+  | 31    printf("%s gained %f pounds\n",
+  | 32  	 dog.name, dog.weight-curwgt);
+  | 33    return 0;
+  | 34  }
+  `----
+
+  Fill in the memory diagrams below for the layout of memory if
+  execution stops at the positions given in the comments.
+
+
+POSITION A
+----------
+
+  ,----
+  | |------------+-------------+-------+-------|
+  | | Frame      | Sym         | Addr  | Value |
+  | |------------+-------------+-------+-------|
+  | | main()     | dog.age     | #1288 |     0 |
+  | |            | dog.weight  |       |       |
+  | |            | dog.name[7] |       |       |
+  | |            | dog.name[6] |       |       |
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |------------+-------------+-------+-------|
+  | | init_dog() |             |       |       |
+  | |            |             |       |       |
+  | |------------+-------------+-------+-------|
+  `----
+
+
+POSITION B
+----------
+
+  ,----
+  | |------------+-------------+-------+-------|
+  | | Frame      | Sym         | Addr  | Value |
+  | |------------+-------------+-------+-------|
+  | | main()     | dog.age     | #1288 |       |
+  | |            | dog.weight  |       |       |
+  | |            | dog.name[7] |       |       |
+  | |            | dog.name[6] |       |       |
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |------------+-------------+-------+-------|
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |            |             |       |       |
+  | |------------+-------------+-------+-------|
+  `----
+
+
+Solution                                                      :solution:
+--------
+
+  ,----
+  | POSITION A
+  | |------------+-------------+-------+----------------+-------------------------------------------|
+  | | Frame      | Sym         | Addr  | Value          | Notes                                     |
+  | |------------+-------------+-------+----------------+-------------------------------------------|
+  | | main()     | dog.age     | #1288 | 0              |                                           |
+  | |            | dog.weight  | #1280 | 5.0            |                                           |
+  | |            | dog.name[7] | #1279 | ?              |                                           |
+  | |            | dog.name[6] | #1278 | ?              |                                           |
+  | |            | dog.name[5] | #1277 | ?              |                                           |
+  | |            | dog.name[4] | #1276 | \0             |                                           |
+  | |            | dog.name[3] | #1275 | f              |                                           |
+  | |            | dog.name[2] | #1274 | l              |                                           |
+  | |            | dog.name[1] | #1273 | o              |                                           |
+  | |            | dog.name[0] | #1272 | R              |                                           |
+  | |            | curwgt      | #1264 | ?              |                                           |
+  | |------------+-------------+-------+----------------+-------------------------------------------|
+  | | init_dog() | d           | #1256 | #1272 or #1288 | Either might be the "starting" address of |
+  | |            |             |       |                | the struct though #1272 is more likely    |
+  | |------------+-------------+-------+----------------+-------------------------------------------|
+  `----
+
+  ,----
+  | POSITION B
+  | |------------+-------------+-------+----------------+-----------------------------|
+  | | Frame      | Sym         | Addr  | Value          | Notes                       |
+  | |------------+-------------+-------+----------------+-----------------------------|
+  | | main()     | dog.age     | #1288 | 0              | About to change but not yet |
+  | |            | dog.weight  | #1280 | 15.0           | Changed                     |
+  | |            | dog.name[7] | #1279 | ?              |                             |
+  | |            | dog.name[6] | #1278 | ?              |                             |
+  | |            | dog.name[5] | #1277 | ?              |                             |
+  | |            | dog.name[4] | #1276 | \0             |                             |
+  | |            | dog.name[3] | #1275 | f              |                             |
+  | |            | dog.name[2] | #1274 | l              |                             |
+  | |            | dog.name[1] | #1273 | o              |                             |
+  | |            | dog.name[0] | #1272 | R              |                             |
+  | |            | curwgt      | #1264 | ?              |                             |
+  | |------------+-------------+-------+----------------+-----------------------------|
+  | | birthday() | num         | #1260 | 2              |                             |
+  | |            | d           | #1242 | #1272 or #1288 |                             |
+  | |            | next        | #1238 | 2              |                             |
+  | |------------+-------------+-------+----------------+-----------------------------|
+  `----
+
+
+PROBLEM 2: Valgrind Debugging badmem.c
+======================================
+
+  The file badmem.c has functions main() and set_pn() in it but has a
+  bad memory problem associated with it.  A sample compile and run is as
+  follows.
+
+  ,----
+  | > gcc -g badmem.c
+  | > a.out
+  | Segmentation fault (core dumped)
+  `----
+
+
+A
+~
+
+  Below is some output from Valgrind. Explain the errors that are
+  identified by Valgrind and inspect the source code of badmem.c to
+  discover the source of the error. Clearly identify whether there is a
+  problem in main() or set_pn().
+
+  ,----
+  | > valgrind ./a.out
+  | ==15611== Memcheck, a memory error detector
+  | ==15611== Copyright (C) 2002-2017, and GNU GPL'd, by Julian Seward et al.
+  | ==15611== Using Valgrind-3.13.0 and LibVEX; rerun with -h for copyright info
+  | ==15611== Command: ./a.out
+  | ==15611== 
+  | ==15611== Use of uninitialised value of size 8
+  | ==15611==    at 0x10873B: set_pn (badmem.c:40)
+  | ==15611==    by 0x1086B8: main (badmem.c:20)
+  | ==15611== 
+  | ==15611== Invalid write of size 4
+  | ==15611==    at 0x10873B: set_pn (badmem.c:40)
+  | ==15611==    by 0x1086B8: main (badmem.c:20)
+  | ==15611==  Address 0x5 is not stack'd, malloc'd or (recently) free'd
+  | ==15611== 
+  | ==15611== 
+  | ==15611== Process terminating with default action of signal 11 (SIGSEGV): dumping core
+  | ==15611==  Access not within mapped region at address 0x5
+  | ==15611==    at 0x10873B: set_pn (badmem.c:40)
+  | ==15611==    by 0x1086B8: main (badmem.c:20)
+  | ==15611==  If you believe this happened as a result of a stack
+  | ==15611==  overflow in your program's main thread (unlikely but
+  | ==15611==  possible), you can try to increase the size of the
+  | ==15611==  main thread stack using the --main-stacksize= flag.
+  | ==15611==  The main thread stack size used in this run was 8720384.
+  | ==15611== 
+  | ==15611== HEAP SUMMARY:
+  | ==15611==     in use at exit: 0 bytes in 0 blocks
+  | ==15611==   total heap usage: 0 allocs, 0 frees, 0 bytes allocated
+  | ==15611== 
+  | ==15611== All heap blocks were freed -- no leaks are possible
+  | ==15611== 
+  | ==15611== For counts of detected and suppressed errors, rerun with: -v
+  | ==15611== Use --track-origins=yes to see where uninitialised values come from
+  | ==15611== ERROR SUMMARY: 2 errors from 2 contexts (suppressed: 0 from 0)
+  | Segmentation fault (core dumped)
+  `----
+
+
+Solution                                                      :solution:
+--------
+
+  The problem is in main(): pointers to pn_t structs are created but
+  they are not initialized to anything. These pointers are passed in and
+  the assumption of set_pn() is that the structs have already been
+  allocated.  This leads to the two valgrind errors identified
+  - An uninitialized value is being used
+  - Write to illegal memory pointed to by the uninitialized pointer
+
+
+B
+~
+
+  Fix badmem.c so that it works correctly. Your fix should NOT change
+  the prototype for the set_pn() function but can make other adjustments
+  to local variables.
+
+
+Solution                                                      :solution:
+--------
+
+  In main(), either allocate stack structs and pass them by address as
+  in
+  ,----
+  | pn_t pn1;
+  | set_pn(arr1, 5, &pn1);
+  | // pn1: {.poss=3, .neg=2}
+  `----
+  or malloc() memory and free it later as in
+  ,----
+  | pn_t *pn1 = malloc(sizeof(pn_t));
+  | set_pn(arr1, 5, pn1);
+  | free(pn1);
+  `----
+
+
+PROBLEM 3: C Bit Operations in Collatz
+======================================
+
+  Examine the program collatz.c which performs a similar computation to
+  a Lab01 code except that this version uses bitwise operations in the
+  function collatz_bitwise().  Examine the locations labeled with
+  comments and shown below and describe the equivalent "normal"
+  arithmetic that is happening at each postion.
+
+
+A
+~
+
+  ,----
+  | int neg_mask = 0x1 << 31;     // A
+  | if(n & neg_mask){             // A
+  |   return -1;
+  | }
+  `----
+
+
+Solution                                                      :solution:
+--------
+
+  Checking for negative values by inspecting the leading bit: 1 for
+  negatives, 0 for positives.
+
+
+B
+~
+
+  ,----
+  | if(n & 0x1){                // B
+  |   ...
+  | }
+  | else{
+  |   ...
+  | }
+  `----
+
+
+Solution                                                      :solution:
+--------
+
+  Checking for odd vs even values: odd if rightmost bit is set, even
+  otherwise
+
+
+C
+~
+
+  ,----
+  | n = ((n << 2) - n) + 1;   // C
+  `----
+
+
+Solution                                                      :solution:
+--------
+
+  Computing
+  ,----
+  | n = n*3 + 1;
+  `----
+  - Left shift by 2 is n*4
+  - Subtract n i n*3
+  - Add 1
+
+
+D
+~
+
+  ,----
+  | n = n >> 1;               // D
+  `----
+
+
+Solution                                                      :solution:
+--------
+
+  Compute
+  ,----
+  | n = n/2;
+  `----
+  - Right shift by 1 bit is equivalent to divide by 2
