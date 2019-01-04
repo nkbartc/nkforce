@@ -1,64 +1,48 @@
-# -*- coding: utf-8 -*-
+import csv, time, multiprocessing, os.path
 
-# Form implementation generated from reading ui file 'bee_test_6.ui'
-#
-# Created by: PyQt5 UI code generator 5.11.3
-#
-# WARNING! All changes made in this file will be lost!
-
-import csv
+from itertools import islice
 from PyQt5 import QtCore, QtGui, QtWidgets
+
 
 class Test:
     tar_gene = []
+
     def __init__(self, test_name):
         tar_gene = []
-        with open(test_name, "r", encoding='UTF-8', newline='') as source:
-            source_reader = csv.DictReader(source, delimiter="\t")
-            for row in source_reader:
-                temp = (row['STRONGEST SNP-RISK ALLELE']).split("-")
-                tar_gene.append((temp[0], temp[1]))
+        source = open(test_name, "r", encoding='UTF-8', newline='')
+        source_reader = csv.DictReader(source, delimiter="\t")
+        for row in source_reader:
+            temp = (row['STRONGEST SNP-RISK ALLELE']).split("-")
+            tar_gene.append((temp[0], temp[1]))
         self.tar_gene = tar_gene
 
-class Analyze:
+
+def analyze(rsid_queue, gene_queue, sample_name, tar_gene, start, end):
     process_rsid = ""
     result = ""
-
-    def __init__(self, sample_name, tar_gene):
-        process_rsid = ""
-        result = ""
-        num_matched = 0
-        with open(sample_name, "r", encoding='UTF-8', newline='') as sample:
-            sample_reader = csv.DictReader(sample, delimiter="\t")
-            for row in sample_reader:
-                rsid = row['# rsid']
-                genotype = row["genotype"]
-                for tar in tar_gene:
-                    if tar[0] == rsid:
-                        # print("rsid match")
-                        process_rsid = process_rsid + rsid + "\n"
-                        if len(genotype) == 2:
-                            if tar[1] == genotype[0] or tar[1] == genotype[1]:
-                                result = result + tar[0] + "-" + tar[1] + "\n"
-                                num_matched = num_matched + 1
-                        elif len(genotype) == 1:
-                            if tar[1] == genotype[0]:
-                                result = result + tar[0] + "-" + tar[1] + "\n"
-                                num_matched = num_matched + 1
-            result = result + "\n" + "matched data: " + str(num_matched) + "\n"
-            self.process_rsid = process_rsid
-            self.result = result
-            # print("Done analyzing.")
-
-    def get_process_rsid(self):
-        return self.process_rsid
-
-    def get_result(self):
-        if len(self.result) == 0:
-            # self.result.append("No matched data.")
-            return self.result
-        else:
-            return self.result
+    # num_matched = 0
+    sample = open(sample_name, "r", encoding='UTF-8', newline='')
+    for row in islice(csv.DictReader(sample, delimiter="\t"), start, end):
+        rsid = row['# rsid']
+        genotype = row["genotype"]
+        for tar in tar_gene:
+            if tar[0] == rsid:
+                # print("rsid match")
+                process_rsid = process_rsid + rsid + "\n"
+                if len(genotype) == 2:
+                    if tar[1] == genotype[0] or tar[1] == genotype[1]:
+                        result = result + tar[0] + "-" + tar[1] + "\n"
+                        # num_matched = num_matched + 1
+                elif len(genotype) == 1:
+                    if tar[1] == genotype[0]:
+                        result = result + tar[0] + "-" + tar[1] + "\n"
+                        # num_matched = num_matched + 1
+    # result = result + "\n" + str(num_matched) + "\n"
+    # if len(result) == 0:
+    #     result = "No matched data"
+    rsid_queue.put(process_rsid)
+    gene_queue.put(result)
+    # return process_rsid, result
 
 
 sample_string = "Select a Sample"
@@ -71,10 +55,47 @@ def analyze_now():
     if sample_string != "Select a Sample" and test_string != "Select a Test":
         temp_sample = sample_string + ".tsv"
         temp_test = test_string + ".tsv"
-        data = Test(temp_test)
-        result = Analyze(temp_sample, data.tar_gene)
-        ui.textBrowser_process.setText(result.get_process_rsid())
-        ui.textBrowser_matched.setText(result.get_result())
+        if not os.path.exists(temp_sample):
+            ui.textBrowser_process.setText("Could not find the sample file: " + temp_sample)
+            return
+        if os.path.exists(temp_test):
+            data = Test(temp_test)
+        else:
+            ui.textBrowser_process.setText("Could not find the test file: " + temp_test)
+            return
+        rsid_queue = multiprocessing.Queue()
+        gene_queue = multiprocessing.Queue()
+
+        p1 = multiprocessing.Process(target=analyze, args=(rsid_queue, gene_queue,
+                                                           temp_sample, data.tar_gene, 0, 250000,))
+        p2 = multiprocessing.Process(target=analyze, args=(rsid_queue, gene_queue,
+                                                           temp_sample, data.tar_gene, 250000, 500000,))
+        p3 = multiprocessing.Process(target=analyze, args=(rsid_queue, gene_queue,
+                                                           temp_sample, data.tar_gene, 500000, 750000,))
+        p4 = multiprocessing.Process(target=analyze, args=(rsid_queue, gene_queue,
+                                                           temp_sample, data.tar_gene, 750000, None,))
+        start = time.time()
+        p1.start()
+        p2.start()
+        p3.start()
+        p4.start()
+
+        p1.join()
+        p2.join()
+        p3.join()
+        p4.join()
+        end = time.time()
+        print(end - start)
+
+        final_rsid = ""
+        final_result = ""
+
+        for x in range(4):
+            final_rsid = final_rsid + rsid_queue.get()
+            final_result = final_result + gene_queue.get()
+
+        ui.textBrowser_process.setText(final_rsid)
+        ui.textBrowser_matched.setText(final_result)
 
 
 def get_sample_string(s):
@@ -152,6 +173,8 @@ class Ui_MainWindow(object):
         self.comboBox_select_test.addItem("")
         self.comboBox_select_test.addItem("")
         self.comboBox_select_test.addItem("")
+        self.comboBox_select_test.addItem("")
+        self.comboBox_select_test.addItem("")
         self.gridLayout.addWidget(self.comboBox_select_test, 1, 1, 1, 1)
         self.comboBox_select_sample = QtWidgets.QComboBox(self.centralwidget)
         font = QtGui.QFont()
@@ -188,6 +211,8 @@ class Ui_MainWindow(object):
         self.comboBox_select_test.setItemText(0, _translate("MainWindow", "Select a Test"))
         self.comboBox_select_test.setItemText(1, _translate("MainWindow", "Celiac disease"))
         self.comboBox_select_test.setItemText(2, _translate("MainWindow", "Peanut allergy"))
+        self.comboBox_select_test.setItemText(3, _translate("MainWindow", "PTSD"))
+        self.comboBox_select_test.setItemText(4, _translate("MainWindow", "Anxiety disorder"))
         self.comboBox_select_sample.setItemText(0, _translate("MainWindow", "Select a Sample"))
         self.comboBox_select_sample.setItemText(1, _translate("MainWindow", "Anjan Contractor"))
         self.comboBox_select_sample.setItemText(2, _translate("MainWindow", "Chia-Yun Chou"))
