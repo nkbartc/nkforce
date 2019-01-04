@@ -1,3 +1,9 @@
+"""
+Property of BeeHex, LLC
+All rights reserved.
+Developer: Bart Chou
+"""
+
 import csv, time, multiprocessing, os.path
 
 from itertools import islice
