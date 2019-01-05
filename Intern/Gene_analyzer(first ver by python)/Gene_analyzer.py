@@ -69,6 +69,7 @@ def analyze_now():
         else:
             ui.textBrowser_process.setText("Could not find the test file: " + temp_test)
             return
+
         rsid_queue = multiprocessing.Queue()
         gene_queue = multiprocessing.Queue()
 
