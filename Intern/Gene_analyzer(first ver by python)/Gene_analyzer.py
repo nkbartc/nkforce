@@ -8,6 +8,7 @@ import csv, time, multiprocessing, os.path
 
 from itertools import islice
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtGui import QDesktopServices
 
 
 class Test:
@@ -28,6 +29,8 @@ def analyze(rsid_queue, gene_queue, sample_name, tar_gene, start, end):
     result = ""
     # num_matched = 0
     sample = open(sample_name, "r", encoding='UTF-8', newline='')
+    for i in range(19): # skip first 19 lines. may need a better way to reach
+        next(sample)    # the line we want later
     for row in islice(csv.DictReader(sample, delimiter="\t"), start, end):
         rsid = row['# rsid']
         genotype = row["genotype"]
@@ -114,6 +117,19 @@ def get_test_string(s):
     global test_string
     test_string = s
 
+def link():
+    address = QtCore.QUrl("https://www.ebi.ac.uk/gwas/search")
+    QDesktopServices.openUrl(address)
+
+def export():
+    fileName = sample_string + '_' + test_string + '.txt'
+    file = open(fileName, "w+")
+    content = "Matched data (rs-number & genotype)\n" + \
+              ui.textBrowser_matched.toPlainText() + \
+              "\nMatched rs-number\n" + \
+              ui.textBrowser_process.toPlainText()
+    file.write(content)
+
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -182,6 +198,7 @@ class Ui_MainWindow(object):
         self.comboBox_select_test.addItem("")
         self.comboBox_select_test.addItem("")
         self.comboBox_select_test.addItem("")
+        self.comboBox_select_test.addItem("")
         self.gridLayout.addWidget(self.comboBox_select_test, 1, 1, 1, 1)
         self.comboBox_select_sample = QtWidgets.QComboBox(self.centralwidget)
         font = QtGui.QFont()
@@ -204,6 +221,8 @@ class Ui_MainWindow(object):
         self.pushButton_analyze.clicked.connect(analyze_now)
         self.pushButton.clicked.connect(self.textBrowser_process.clear)
         self.pushButton.clicked.connect(self.textBrowser_matched.clear)
+        self.pushButton_download.clicked.connect(link)
+        self.pushButton_export.clicked.connect(export)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
@@ -220,6 +239,7 @@ class Ui_MainWindow(object):
         self.comboBox_select_test.setItemText(2, _translate("MainWindow", "Peanut allergy"))
         self.comboBox_select_test.setItemText(3, _translate("MainWindow", "PTSD"))
         self.comboBox_select_test.setItemText(4, _translate("MainWindow", "Anxiety disorder"))
+        self.comboBox_select_test.setItemText(5, _translate("MainWindow", "Obesity"))
         self.comboBox_select_sample.setItemText(0, _translate("MainWindow", "Select a Sample"))
         self.comboBox_select_sample.setItemText(1, _translate("MainWindow", "Anjan Contractor"))
         self.comboBox_select_sample.setItemText(2, _translate("MainWindow", "Chia-Yun Chou"))
