@@ -41,10 +41,12 @@ def analyze(rsid_queue, gene_queue, sample_name, tar_gene, start, end):
                 if len(genotype) == 2:
                     if tar[1] == genotype[0] or tar[1] == genotype[1]:
                         result = result + tar[0] + "-" + tar[1] + "\n"
+                        break
                         # num_matched = num_matched + 1
                 elif len(genotype) == 1:
                     if tar[1] == genotype[0]:
                         result = result + tar[0] + "-" + tar[1] + "\n"
+                        break
                         # num_matched = num_matched + 1
     # result = result + "\n" + str(num_matched) + "\n"
     # if len(result) == 0:
@@ -85,10 +87,11 @@ def analyze_now():
         p4 = multiprocessing.Process(target=analyze, args=(rsid_queue, gene_queue,
                                                            temp_sample, data.tar_gene, 750000, None,))
         start = time.time()
-        p1.start()
-        p2.start()
-        p3.start()
+
         p4.start()
+        p3.start()
+        p2.start()
+        p1.start()
 
         p1.join()
         p2.join()
@@ -103,9 +106,15 @@ def analyze_now():
         for x in range(4):
             final_rsid = final_rsid + rsid_queue.get()
             final_result = final_result + gene_queue.get()
+        numMatched = 0
+
+        for x in range(len(final_result)):
+            if final_result[x] == '\n':
+                numMatched += 1
 
         ui.textBrowser_process.setText(final_rsid)
         ui.textBrowser_matched.setText(final_result)
+        ui.textBrowser_matched.append("Matched data: " + str(numMatched))
 
 
 def get_sample_string(s):
