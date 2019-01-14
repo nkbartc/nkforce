@@ -15,31 +15,97 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-QMap<QByteArray, QByteArray> readSample(QString sample_name){
+QByteArray analyze(QString sample_name,
+             QList<QPair<QByteArray, QByteArray>> tar_gene,
+             int start, int num){
 
-    QMap<QByteArray, QByteArray> result;
-    QMap<QByteArray, QByteArray> &result_ref = result;
+    QByteArray data_matches;
+    QByteArray &data_matches_ref = data_matches;
 
     QFile file(sample_name);
     QFile &file_ref = file;
     file.open(QIODevice::ReadOnly);
 
+    int counter = 0;
+    int& counter_ref = counter;
+    int& start_ref = start;
     // skip first 20 lines
-    for(int i = 0; i < 20; i++){
-        file_ref.readLine();
+    if (start_ref == 0){
+        for(int i = 0; i < 20; i++){
+            file_ref.readLine();
+            counter++;
+        }
+    }
+    else{
+        for(int i = 0; i < start_ref; i++){
+            file_ref.readLine();
+        }
     }
 
-    while(!file_ref.atEnd()){
-        const QByteArray &line = file_ref.readLine();
-        const QList<QByteArray> &tokens = line.split('\t');
-        result_ref.insert(tokens[0], tokens[3].split('\r')[0]);
+    // last section to read, triggered by num = -1
+    if (num == -1){
+        while(!file_ref.atEnd()){
+            const QByteArray &line = file_ref.readLine();
+            const QList<QByteArray> &tokens = line.split('\t');
+            for (const auto &i : tar_gene){
+                if (i.first == tokens[0]){
+                    const QByteArray &i_rs = i.first;
+                    const QByteArray &i_geno = i.second;
+                    const QByteArray &cur_geno = tokens[3].split('\r')[0];
+                    if(cur_geno.length() == 2){
+                        if (i_geno.front() == cur_geno.front() ||
+                            i_geno.front() == cur_geno.at(1)){
+                            data_matches_ref += i_rs + '-' + i_geno + '\n';
+                            break;
+                        }
+                    }
+                    else if (cur_geno.length() == 1) {
+                        if (i_geno.front() == cur_geno.front()){
+                            data_matches_ref += i_rs + '-' + i_geno + '\n';
+                            break;
+                        }
+                    }
+                }
+            }
+            counter_ref++;
+        }
+        return data_matches_ref;
     }
-    return result;
+    // you don't need this if you don't want to do multithreading/async
+    else{
+        const int& end = num;
+        while(counter_ref != end){
+            const QByteArray &line = file_ref.readLine();
+            const QList<QByteArray> &tokens = line.split('\t');
+            for (const auto &i : tar_gene){
+                if (i.first == tokens[0]){
+                    const QByteArray &i_rs = i.first;
+                    const QByteArray &i_geno = i.second;
+                    const QByteArray &cur_geno = tokens[3].split('\r')[0];
+                    if(cur_geno.length() == 2){
+                        if (i_geno.front() == cur_geno.front() ||
+                            i_geno.front() == cur_geno.at(1)){
+                            data_matches_ref += i_rs + '-' + i_geno + '\n';
+                            break;
+                        }
+                    }
+                    else if (cur_geno.length() == 1) {
+                        if (i_geno.front() == cur_geno.front()){
+                            data_matches_ref += i_rs + '-' + i_geno + '\n';
+                            break;
+                        }
+                    }
+                }
+            }
+            counter_ref++;
+        }
+        return data_matches_ref;
+    }
+
 }
 
 QList<QPair<QByteArray, QByteArray>> readTest(QString test){
-    QList<QPair<QByteArray, QByteArray>> result;
-    QList<QPair<QByteArray, QByteArray>> &result_ref = result;
+    QList<QPair<QByteArray, QByteArray>> tar_gene;
     QFile file(test);
     file.open(QIODevice::ReadOnly);
     file.readLine(); // skip first line
@@ -47,16 +113,18 @@ QList<QPair<QByteArray, QByteArray>> readTest(QString test){
         const QByteArray &line = file.readLine();
         QList<QByteArray> templist;
         templist.append(line.split('\t')[20].split('-'));
-        result_ref.append(qMakePair(templist.at(0), templist.at(1)));
+        tar_gene.append(qMakePair(templist.at(0),
+                                  templist.at(1)));
     }
 //    note that some of the tests contain duplicated rs-number
-////////////////make result contain only unique rs-number///////////////
-    qSort(result_ref.begin(), result_ref.end());
-    QList<QPair<QByteArray, QByteArray>>::iterator it = std::unique (result_ref.begin(), result_ref.end());
-    result_ref.erase(it, result_ref.end());
-///////////////////////////////////////////////////////////////////////
-    qDebug() << result;
-    return result;
+////////////////make tar_gene contain only unique rs-number///////////////
+////////////////may not give any speed boost//////////////////////////////
+//    qSort(tar_gene.begin(), tar_gene.end());
+//    QList<QPair<QByteArray, QByteArray>>::iterator it = std::unique (tar_gene.begin(), tar_gene.end());
+//    tar_gene.erase(it, tar_gene.end());
+/////////////////////////////////////////////////////////////////////////
+
+    return tar_gene;
 }
 
 QByteArray foo(QString test, QString sample){
@@ -67,38 +135,21 @@ QByteArray foo(QString test, QString sample){
         it.next(); // skip ..-> parent folder
         clock_t t1,t2;
         sample = "./samples/" + sample;
-        QMap<QByteArray, QByteArray> sampleMap;
-        QMap<QByteArray, QByteArray> const &sampleMap_ref = sampleMap;
         t1=clock();
-        sampleMap = readSample(sample);
         while (it.hasNext()) {
             it.next();
             QString filename(it.fileName());
-            QByteArray tempResult;
+            QList<QPair<QByteArray, QByteArray>> tar_gene;
             filename = "./tests/" + filename;
-            QList<QPair<QByteArray, QByteArray>> testMap;
-            testMap = readTest(filename);
+            tar_gene = readTest(filename);
+            QByteArray result_temp = analyze(sample, tar_gene, 0, -1);
             int numMatched = 0;
-            for (const auto &i : testMap){
-                if (sampleMap_ref.contains(i.first)){
-                    const QByteArray &i_rs = i.first;
-                    const QByteArray &i_geno = i.second;
-                    if (sampleMap_ref.find(i_rs)->length() == 2){
-                        if (i_geno.front() == sampleMap_ref.value(i_rs).front() ||
-                            i_geno.front() == sampleMap_ref.value(i_rs).at(1)){
-                            tempResult += i_rs + '-' + i_geno + '\n';
-                            numMatched++;
-                        }
-                    }
-                    else if (sampleMap_ref.find(i_rs)->length() == 1){
-                        if (i_geno.front() == sampleMap_ref.value(i_rs).front()){
-                            tempResult += i_rs + '-' + i_geno + '\n';
-                            numMatched++;
-                        }
-                    }
+            for(int i = 0; i < result_temp.length(); i++){
+                if(result_temp[i] == '\n'){
+                    numMatched++;
                 }
             }
-            result += "Test: " + filename + "\n" + tempResult +
+            result += "Test: " + filename + "\n" + result_temp +
                       "Matched data: " + QByteArray::number(numMatched) + "\n" +
                       "--------------------------------------" + "\n";
         }
@@ -109,52 +160,35 @@ QByteArray foo(QString test, QString sample){
         return result;
     }
     else{
-        QByteArray result, tempResult;
         test = "./tests/" + test;
         sample = "./samples/" + sample;
-//        QFile file_test(test);
-//        if (!file_test.exists()) {
-//            return "The test file doesn't exist.";
-//        }
-
-//        QFile file_sample(sample);
-//        if (!file_sample.exists()) {
-//            return "The sample file doesn't exist.";
-//        }
-        clock_t t1,t2;
-        QMap<QByteArray, QByteArray> sampleMap;
-        QMap<QByteArray, QByteArray> const &sampleMap_ref = sampleMap;
-        t1=clock();
-        sampleMap = readSample(sample);
-        QList<QPair<QByteArray, QByteArray>> testMap;
-        testMap = readTest(test);
-        int numMatched = 0;
-        for (const auto &i : testMap){
-            if (sampleMap_ref.contains(i.first)){
-                const QByteArray &i_rs = i.first;
-                const QByteArray &i_geno = i.second;
-                if (sampleMap_ref.find(i_rs)->length() == 2){
-                    if (i_geno.front() == sampleMap_ref.value(i_rs).front() ||
-                        i_geno.front() == sampleMap_ref.value(i_rs).at(1)){
-                        tempResult += i_rs + '-' + i_geno + '\n';
-                        numMatched++;
-                    }
-                }
-                else if (sampleMap_ref.find(i_rs)->length() == 1){
-                    if (i_geno.front() == sampleMap_ref.value(i_rs).front()){
-                        tempResult += i_rs + '-' + i_geno + '\n';
-                        numMatched++;
-                    }
-                }
-            }
+        QList<QPair<QByteArray, QByteArray>> tar_gene;
+        QFile file_test(test);
+        if (!file_test.exists()) {
+            return "The test file doesn't exist.";
         }
-        result += "Test: " + test + "\n" + tempResult +
-                 "Matched data: " + QByteArray::number(numMatched) + "\n" +
-                 "--------------------------------------" + "\n";
+        tar_gene = readTest(test);
+        QFile file_sample(sample);
+        if (!file_sample.exists()) {
+            return "The sample file doesn't exist.";
+        }
+        clock_t t1,t2;
+
+        t1=clock();
+        QByteArray result_temp = analyze(sample, tar_gene, 0, -1);
         t2=clock();
         float diff = t2 - t1;
         float seconds = diff / CLOCKS_PER_SEC;
         qDebug() << seconds;
+        int numMatched = 0;
+        for(int i = 0; i < result_temp.length(); i++){
+            if(result_temp[i] == '\n'){
+                numMatched++;
+            }
+        }
+        QByteArray result;
+        result += "Test: " + test + "\n" + result_temp +
+                "Matched data: " + QByteArray::number(numMatched) + "\n";
         return result;
     }
 }
