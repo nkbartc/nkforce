@@ -1,0 +1,35 @@
+/*
+Property of BeeHex, LLC
+All rights reserved.
+Developer: Bart Chou
+*/
+
+(January 13, 2019)
+1.  Implemented a new way to run tests: First read the sample file into a buffer and then iterate all test vectors,
+    which gives a big speed boost -> now running all tests takes 2 seconds
+
+(January 12, 2019)
+1.  Now the program can run all the tests at once, which takes about 20 seconds(3 large tests & 7 small tests)
+
+(January 11, 2019)
+1.  Switch from debug mode to release mode. // CONFIG += release -> give a big speed boost
+    Now each test takes about 1 seconds.
+2.  Take off the multithreading method for now.
+3.  Add new button: import samples
+4.  Add new button: import tests
+5.  Functionalize button: donwload a new test
+6.  Functionalize button: export the results(.txt)
+7.  Functionalize button: clear the results
+
+(January 10, 2019)
+1.  I am sick. Need to take a day off.
+
+(January 9, 2019)
+1.  Implemented "references". Each test takes about 7 sec.
+2.  Implemented multithreading. Each test takes about 4 sec.
+
+(January 7, 2019)
+1.  The program now can run single test. Each test takes about 30 sec.
+
+(January 5, 2019)
+1.  Project created.
