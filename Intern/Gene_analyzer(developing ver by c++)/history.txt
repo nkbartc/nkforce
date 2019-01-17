@@ -4,6 +4,10 @@ All rights reserved.
 Developer: Bart Chou
 */
 
+(January 16, 2019)
+1. Replace some qlists by qvectors
+2. add a new frame for "suggested food"
+
 (January 14, 2019)
 1. Add feature: get % of test genes in total
 2. runing more than 1k tests takes 2~3 seconds

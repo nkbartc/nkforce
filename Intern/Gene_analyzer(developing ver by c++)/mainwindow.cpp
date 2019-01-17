@@ -6,7 +6,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::MainWindow)
 {
-    this->setFixedSize(QSize(561, 602));
+    this->setFixedSize(QSize(617, 681));
     ui->setupUi(this);
 }
 
@@ -37,9 +37,9 @@ QMap<QByteArray, QByteArray> readSample(QString sample_name){
     return result;
 }
 
-QList<QPair<QByteArray, QByteArray>> readTest(QString test, int& numTestGene){
-    QList<QPair<QByteArray, QByteArray>> result;
-    QList<QPair<QByteArray, QByteArray>> &result_ref = result;
+QVector<QPair<QByteArray, QByteArray>> readTest(QString test, int& numTestGene){
+    QVector<QPair<QByteArray, QByteArray>> result;
+    QVector<QPair<QByteArray, QByteArray>> &result_ref = result;
     QFile file(test);
     file.open(QIODevice::ReadOnly);
     file.readLine(); // skip first line
@@ -53,7 +53,7 @@ QList<QPair<QByteArray, QByteArray>> readTest(QString test, int& numTestGene){
 //    note that some of the tests contain duplicated rs-number
 ////////////////make result contain only unique rs-number///////////////
     qSort(result_ref.begin(), result_ref.end());
-    QList<QPair<QByteArray, QByteArray>>::iterator it = std::unique (result_ref.begin(), result_ref.end());
+    QVector<QPair<QByteArray, QByteArray>>::iterator it = std::unique (result_ref.begin(), result_ref.end());
     result_ref.erase(it, result_ref.end());
 ///////////////////////////////////////////////////////////////////////
     return result;
@@ -76,7 +76,7 @@ QByteArray foo(QString test, QString sample){
             QString filename(it.fileName());
             QByteArray tempResult;
             filename = "./tests/" + filename;
-            QList<QPair<QByteArray, QByteArray>> testMap;
+            QVector<QPair<QByteArray, QByteArray>> testMap;
             int numTestGene = 0;
             testMap = readTest(filename, numTestGene);
             int numMatched = 0;
@@ -130,7 +130,7 @@ QByteArray foo(QString test, QString sample){
         QMap<QByteArray, QByteArray> const &sampleMap_ref = sampleMap;
         t1=clock();
         sampleMap = readSample(sample);
-        QList<QPair<QByteArray, QByteArray>> testMap;
+        QVector<QPair<QByteArray, QByteArray>> testMap;
         int numTestGene = 0;
         testMap = readTest(test, numTestGene);
         int numMatched = 0;
