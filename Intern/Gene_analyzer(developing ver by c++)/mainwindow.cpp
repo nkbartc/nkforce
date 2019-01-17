@@ -37,7 +37,7 @@ QMap<QByteArray, QByteArray> readSample(QString sample_name){
     return result;
 }
 
-QList<QPair<QByteArray, QByteArray>> readTest(QString test){
+QList<QPair<QByteArray, QByteArray>> readTest(QString test, int& numTestGene){
     QList<QPair<QByteArray, QByteArray>> result;
     QList<QPair<QByteArray, QByteArray>> &result_ref = result;
     QFile file(test);
@@ -48,6 +48,7 @@ QList<QPair<QByteArray, QByteArray>> readTest(QString test){
         QList<QByteArray> templist;
         templist.append(line.split('\t')[20].split('-'));
         result_ref.append(qMakePair(templist.at(0), templist.at(1)));
+        numTestGene++;
     }
 //    note that some of the tests contain duplicated rs-number
 ////////////////make result contain only unique rs-number///////////////
@@ -55,12 +56,11 @@ QList<QPair<QByteArray, QByteArray>> readTest(QString test){
     QList<QPair<QByteArray, QByteArray>>::iterator it = std::unique (result_ref.begin(), result_ref.end());
     result_ref.erase(it, result_ref.end());
 ///////////////////////////////////////////////////////////////////////
-    qDebug() << result;
     return result;
 }
 
 QByteArray foo(QString test, QString sample){
-    if(test == "RUN ALL TESTS (Patience!)"){
+    if(test == "RUN ALL TESTS"){
         QByteArray result;
         QDirIterator it("./tests", QDirIterator::Subdirectories);
         it.next(); // skip . -> current folder
@@ -77,7 +77,8 @@ QByteArray foo(QString test, QString sample){
             QByteArray tempResult;
             filename = "./tests/" + filename;
             QList<QPair<QByteArray, QByteArray>> testMap;
-            testMap = readTest(filename);
+            int numTestGene = 0;
+            testMap = readTest(filename, numTestGene);
             int numMatched = 0;
             for (const auto &i : testMap){
                 if (sampleMap_ref.contains(i.first)){
@@ -98,8 +99,11 @@ QByteArray foo(QString test, QString sample){
                     }
                 }
             }
+            float per = (float)numMatched/(float)numTestGene * 100;
             result += "Test: " + filename + "\n" + tempResult +
-                      "Matched data: " + QByteArray::number(numMatched) + "\n" +
+                      "Matched: " + QByteArray::number(numMatched) +
+                      " (out of " + QByteArray::number(numTestGene) + ")" +
+                      " -> " + QByteArray::number(per) + "%" + "\n" +
                       "--------------------------------------" + "\n";
         }
         t2=clock();
@@ -127,7 +131,8 @@ QByteArray foo(QString test, QString sample){
         t1=clock();
         sampleMap = readSample(sample);
         QList<QPair<QByteArray, QByteArray>> testMap;
-        testMap = readTest(test);
+        int numTestGene = 0;
+        testMap = readTest(test, numTestGene);
         int numMatched = 0;
         for (const auto &i : testMap){
             if (sampleMap_ref.contains(i.first)){
@@ -149,8 +154,9 @@ QByteArray foo(QString test, QString sample){
             }
         }
         result += "Test: " + test + "\n" + tempResult +
-                 "Matched data: " + QByteArray::number(numMatched) + "\n" +
-                 "--------------------------------------" + "\n";
+                  "Matched data: " + QByteArray::number(numMatched) +
+                  " (out of" + QByteArray::number(numTestGene) + ")" + "\n" +
+                  "--------------------------------------" + "\n";
         t2=clock();
         float diff = t2 - t1;
         float seconds = diff / CLOCKS_PER_SEC;
@@ -277,12 +283,12 @@ void MainWindow::on_pushButton_importTests_clicked()
     it.next(); // skip . -> current folder
     it.next(); // skip ..-> parent folder
     ui->comboBox_test->addItem("Select a test.");
+    ui->comboBox_test->addItem("RUN ALL TESTS");
     while (it.hasNext()) {
         it.next();
         QString filename(it.fileName());
         ui->comboBox_test->addItem(filename);
     }
-    ui->comboBox_test->addItem("RUN ALL TESTS (Patience!)");
 }
 
 void MainWindow::on_pushButton_download_clicked()

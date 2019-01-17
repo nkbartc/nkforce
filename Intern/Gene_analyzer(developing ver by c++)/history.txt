@@ -4,6 +4,10 @@ All rights reserved.
 Developer: Bart Chou
 */
 
+(January 14, 2019)
+1. Add feature: get % of test genes in total
+2. runing more than 1k tests takes 2~3 seconds
+
 (January 13, 2019)
 1.  Implemented a new way to run tests: First read the sample file into a buffer and then iterate all test vectors,
     which gives a big speed boost -> now running all tests takes 2 seconds
